@@ -1,4 +1,5 @@
 # ignoring unwanted files
+.DS_Store
 .editorconfig
 .helmignore
 .prettierignore
