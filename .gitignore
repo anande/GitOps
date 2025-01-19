@@ -1,5 +1,7 @@
 # ignoring unwanted files
 .DS_Store
+gitea/.DS_Store
+argocd/.DS_Store
 .editorconfig
 .helmignore
 .prettierignore
