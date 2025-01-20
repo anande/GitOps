@@ -41,7 +41,7 @@ expose:
     controller: default
     ## Allow .Capabilities.KubeVersion.Version to be overridden while creating ingress
     kubeVersionOverride: ""
-    className: "nginx"
+    className: ""
     annotations:
       # note different ingress controllers may require a different ssl-redirect annotation
       # for Envoy, use ingress.kubernetes.io/force-ssl-redirect: "true" and remove the nginx lines below
@@ -112,7 +112,6 @@ expose:
 # the IP address of k8s node
 #
 # If Harbor is deployed behind the proxy, set it as the URL of proxy
-# externalURL: https://core.harbor.domain
 externalURL: https://registry.harbor.lab
 
 # The persistence is enabled by default and a default StorageClass
