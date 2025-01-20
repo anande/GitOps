@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: harbot-cert
+  namespace: harbor
+spec:
+  secretName: harbor-cert-secret  # The name of the secret to store the certificate
+  issuerRef:
+    name: letsencrypt-prod  # Reference to your ClusterIssuer
+    kind: ClusterIssuer
+  commonName: registry.harbor.com  # Replace with your domain
+  dnsNames:
+    - registry.harbor.com  # Replace with your domain

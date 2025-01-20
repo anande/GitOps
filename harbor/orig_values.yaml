@@ -1,16 +1,16 @@
 expose:
   # Set how to expose the service. Set the type as "ingress", "clusterIP", "nodePort" or "loadBalancer"
   # and fill the information in the corresponding section
-  type: ingress
-  # type: nodePort  
+  # type: ingress
+  type: nodePort  
   tls:
     # Enable TLS or not.
     # Delete the "ssl-redirect" annotations in "expose.ingress.annotations" when TLS is disabled and "expose.type" is "ingress"
     # Note: if the "expose.type" is "ingress" and TLS is disabled,
     # the port must be included in the command when pulling/pushing images.
     # Refer to https://github.com/goharbor/harbor/issues/5291 for details.
-    enabled: true
-    # enabled: false
+    # enabled: true
+    enabled: false
     # The source of the tls certificate. Set as "auto", "secret"
     # or "none" and fill the information in the corresponding section
     # 1) auto: generate the tls certificate automatically
@@ -18,23 +18,20 @@ expose:
     # The tls certificate can be generated manually or by cert manager
     # 3) none: configure no tls certificate for the ingress. If the default
     # tls certificate is configured in the ingress controller, choose this option
-    # certSource: auto
-    certSource: secret
+    certSource: auto
     auto:
       # The common name used to generate the certificate, it's necessary
       # when the type isn't "ingress"
-      # commonName: ""
-      commonName: "registry.harbor.com"
+      commonName: ""
     secret:
       # The name of secret which contains keys named:
       # "tls.crt" - the certificate
       # "tls.key" - the private key
-      # secretName: ""
-      secretName: "harbot-cert-dtkdh"
+      secretName: ""
   ingress:
     hosts:
       # core: core.harbor.domain
-      core: registry.harbor.com
+      core: registry.harbor.lab
     # set to the type of ingress controller if it has specific requirements.
     # leave as `default` for most ingress controllers.
     # set to `gce` if using the GCE ingress controller
@@ -52,8 +49,6 @@ expose:
       ingress.kubernetes.io/proxy-body-size: "0"
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
-      # cert-manager.io/issuer: "letsencrypt-prod"  # Reference to your ClusterIssuer
-      # cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Use this if you're using a ClusterIssuer
     # ingress-specific labels
     labels: {}
   clusterIP:
@@ -117,7 +112,7 @@ expose:
 # the IP address of k8s node
 #
 # If Harbor is deployed behind the proxy, set it as the URL of proxy
-externalURL: https://registry.harbor.com
+externalURL: https://registry.harbor.lab
 
 # The persistence is enabled by default and a default StorageClass
 # is needed in the k8s cluster to provision volumes dynamically.

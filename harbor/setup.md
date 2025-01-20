@@ -27,4 +27,23 @@ Forwarding from [::1]:8888 -> 8080
 Then login to the webUI on the following URL:  
 [http://localhost:8888](http://localhost:8888/)  
 u: `admin`  
-p: `Harbor12345`
+p: `Harbor12345`  
+
+To uninstall harbor:  
+`helm uninstall harbor --namespace harbor`  
+
+To upgrade harbor if making any changes to `values.yaml`  
+`helm upgrade harbor . -f values.yaml -n harbor`  
+
+###### Note :  
+If you make multiple updates to the values.yml which involve updates to the harbor_admin_password,
+OR ingress/TLS, then these changes will go down in the associated PVC's.  
+This somehow messes up the login workflow and users can no more login.  
+To solve this, delete all the associated PVC's including:  
+```
+[PersistentVolumeClaim] harbor-jobservice
+[PersistentVolumeClaim] harbor-registry
+[PersistentVolumeClaim] database-data-harbor-database-0
+[PersistentVolumeClaim] data-harbor-trivy-0
+[PersistentVolumeClaim] data-harbor-redis-0
+```
