@@ -7,3 +7,5 @@ argocd/.DS_Store
 .prettierignore
 .yamllint
 harbor/cosign/cosign.key
+harbor/registry.harbor.com+1-key.pem
+harbor/registry.harbor.com+1.pem

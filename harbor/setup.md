@@ -14,7 +14,7 @@ Update Complete. ⎈Happy Helming!⎈
 $ helm fetch harbor/harbor --untar
 ```
 
-#### Create local CA and certs using mkcert
+#### Create local CA and certs using [mkcert](https://github.com/FiloSottile/mkcert)
 ```
 brew install mkcert nss
 ```
