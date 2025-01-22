@@ -16,3 +16,8 @@ spec:
     - http01:
         ingress:
           class: nginx  # Change to your Ingress class if different
+    # solvers:
+    # - selector: {}
+    #   http01:
+    #     ingress:
+    #       ingressClassName: nginx

@@ -20,17 +20,16 @@ expose:
     # tls certificate is configured in the ingress controller, choose this option
     # certSource: auto
     certSource: secret
-    auto:
+    #auto:
       # The common name used to generate the certificate, it's necessary
       # when the type isn't "ingress"
       # commonName: ""
-      commonName: "registry.harbor.com"
     secret:
       # The name of secret which contains keys named:
       # "tls.crt" - the certificate
       # "tls.key" - the private key
       # secretName: ""
-      secretName: "harbot-cert-dtkdh"
+      secretName: "harbor-ingress-tls-cert"
   ingress:
     hosts:
       # core: core.harbor.domain
@@ -44,7 +43,9 @@ expose:
     controller: default
     ## Allow .Capabilities.KubeVersion.Version to be overridden while creating ingress
     kubeVersionOverride: ""
-    className: ""
+    # className: ""
+    # className: "nginx"
+    className: "traefik"
     annotations:
       # note different ingress controllers may require a different ssl-redirect annotation
       # for Envoy, use ingress.kubernetes.io/force-ssl-redirect: "true" and remove the nginx lines below
@@ -54,6 +55,7 @@ expose:
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
       # cert-manager.io/issuer: "letsencrypt-prod"  # Reference to your ClusterIssuer
       # cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Use this if you're using a ClusterIssuer
+      # cert-manager.io/cluster-issuer: "selfsigned-cluster-issuer"  # Use this if you're using a ClusterIssuer
     # ingress-specific labels
     labels: {}
   clusterIP:
@@ -118,6 +120,7 @@ expose:
 #
 # If Harbor is deployed behind the proxy, set it as the URL of proxy
 externalURL: https://registry.harbor.com
+# externalURL: http://localhost:9292
 
 # The persistence is enabled by default and a default StorageClass
 # is needed in the k8s cluster to provision volumes dynamically.

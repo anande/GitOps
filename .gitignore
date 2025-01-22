@@ -6,3 +6,4 @@ argocd/.DS_Store
 .helmignore
 .prettierignore
 .yamllint
+harbor/cosign/cosign.key
