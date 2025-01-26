@@ -1,0 +1,36 @@
+apiVersion: compute.gcp.upbound.io/v1beta2
+kind: Instance
+metadata:
+  annotations:
+    meta.upbound.io/example-id: compute/v1beta2/instance
+  labels:
+    testing.upbound.io/example-name: example_instance
+  name: example-instance
+spec:
+  forProvider:
+    bootDisk:
+      initializeParams:
+        image: debian-cloud/debian-11
+    machineType: e2-medium
+    metadata:
+      environment: dev
+    metadataStartupScript: echo 'Upbound!' > /test.txt
+    networkInterface:
+      - accessConfig:
+          - {}
+        networkSelector:
+          matchLabels:
+            testing.upbound.io/example-name: example_instance_network
+        subnetworkSelector:
+          matchLabels:
+            testing.upbound.io/example-name: example_instance_network
+    serviceAccount:
+      emailSelector:
+        matchLabels:
+          testing.upbound.io/example-name: example_instance_sa
+      scopes:
+        - cloud-platform
+    tags:
+      - foo
+      - bar
+    zone: us-central1-a

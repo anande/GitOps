@@ -212,3 +212,7 @@ To uninstall harbor:
 
 To upgrade harbor if making any changes to `values.yaml`  
 `$ helm upgrade harbor . -f values.yaml -n harbor`
+
+###### REFERENCES:
+1. https://computingforgeeks.com/install-harbor-image-registry-on-kubernetes-openshift-with-helm-chart
+2. https://www.youtube.com/watch?v=rDxRcjfNJcg

@@ -21,7 +21,7 @@ global:
   #   - example.com
 
 ## @param namespace An explicit namespace to deploy gitea into. Defaults to the release namespace if not specified
-namespace: ""
+namespace: "gitea"
 
 ## @param replicaCount number of replicas for the deployment
 replicaCount: 1
@@ -167,20 +167,23 @@ service:
 ingress:
   enabled: true
   # className: nginx
-  className:
+  className: "traefik"
   annotations:
     # {}
-    kubernetes.io/ingress.class: nginx
+    # kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: "traefik"
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: git.demo.com
+    # - host: git.demo.com
+    - host: gitea.local.com
       paths:
         - path: /
           pathType: Prefix
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - git.example.com
+  # tls: []
+  tls:
+   - secretName: gitea-ingress-tls-cert
+     hosts:
+       - git.local.com
   # Mostly for argocd or any other CI that uses `helm template | kubectl apply` or similar
   # If helm doesn't correctly detect your ingress API version you can set it here.
   # apiVersion: networking.k8s.io/v1
