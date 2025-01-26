@@ -91,6 +91,98 @@ OR adding a step like below in the gitea workflow:
 ```
 Then test the Actions using the example available [at this location](https://docs.gitea.com/usage/actions/quickstart#use-actions).
 
+
+###### Using GPG key :
+
+- [Install the GPG binary](https://sourceforge.net/projects/gpgosx/files/GnuPG-2.4.7.dmg/download?use_mirror=webwerks&use_mirror=webwerks&r=https%3A%2F%2Fsourceforge.net%2Fp%2Fgpgosx%2Fdocu%2FDownload%2F)
+- Create a GPG key locally on laptop
+```
+$ gpg --list-secret-keys --keyid-format=long
+gpg: directory '/Users/anand.nande/.gnupg' created
+gpg: /Users/anand.nande/.gnupg/trustdb.gpg: trustdb created
+
+$ gpg --full-generate-key
+
+gpg (GnuPG) 2.4.7; Copyright (C) 2024 g10 Code GmbH
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Please select what kind of key you want:
+   (1) RSA and RSA
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+   (9) ECC (sign and encrypt) *default*
+  (10) ECC (sign only)
+  (14) Existing key from card
+Your selection? 1
+RSA keys may be between 1024 and 4096 bits long.
+What keysize do you want? (3072) 
+Requested keysize is 3072 bits
+Please specify how long the key should be valid.
+         0 = key does not expire
+      <n>  = key expires in n days
+      <n>w = key expires in n weeks
+      <n>m = key expires in n months
+      <n>y = key expires in n years
+Key is valid for? (0) 
+Key does not expire at all
+Is this correct? (y/N) y
+
+GnuPG needs to construct a user ID to identify your key.
+
+Real name: anande
+Email address: anande@example.com
+Comment: First GPG Key
+You selected this USER-ID:
+    "anande (First GPG Key) <anande@example.com>"
+
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? O
+We need to generate a lot of random bytes. It is a good idea to perform
+some other action (type on the keyboard, move the mouse, utilize the
+disks) during the prime generation; this gives the random number
+generator a better chance to gain enough entropy.
+We need to generate a lot of random bytes. It is a good idea to perform
+some other action (type on the keyboard, move the mouse, utilize the
+disks) during the prime generation; this gives the random number
+generator a better chance to gain enough entropy.
+gpg: directory '/Users/anand.nande/.gnupg/openpgp-revocs.d' created
+gpg: revocation certificate stored as '/Users/anand.nande/.gnupg/openpgp-revocs.d/C135C6F5CFCC21C2B2306CA553842E936F11B5BE.rev'
+public and secret key created and signed.
+
+pub   rsa3072 2025-01-26 [SC]
+      C135C6F5CFCC21C2B2306CA553842E936F11B5BE
+uid                      anande (First GPG Key) <anand.nande@rackspace.com>
+sub   rsa3072 2025-01-26 [E]
+
+
+$ gpg --list-secret-keys --keyid-format=long
+gpg: checking the trustdb
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+[keyboxd]
+---------
+sec   rsa3072/53842E936F11B5BE 2025-01-26 [SC]
+      C135C6F5CFCC21C2B2306CA553842E936F11B5BE
+uid                 [ultimate] anande (First GPG Key) <anande@example.com>
+ssb   rsa3072/B72BC540EC2ECD3E 2025-01-26 [E]
+```
+
+- Print the GPG Key ID :
+
+```
+% gpg --armor --export 53842E936F11B5BE
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+.....
+....
+...
+..
+.
+-----END PGP PUBLIC KEY BLOCK-----
+```
+
+- You can either [Add this key to your GH account](https://docs.github.com/en/authentication/managing-commit-signature-verification/adding-a-gpg-key-to-your-github-account) OR use this in the helm values.yaml to have it added during gitea installation
+
 ###### References:
 1. https://gitea.com/gitea/helm-chart/pulls/666
 2. [Fix for node package inside gitea runner container](https://forum.gitea.com/t/gitea-actions-cannot-find-node-in-path/7544/5)
