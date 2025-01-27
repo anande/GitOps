@@ -2,6 +2,7 @@
 ```
 $ helm repo add jetstack https://charts.jetstack.io --force-update
 "jetstack" has been added to your repositories
+
 $ helm repo update
 Hang tight while we grab the latest from your chart repositories...
 ...Successfully got an update from the "harbor" chart repository

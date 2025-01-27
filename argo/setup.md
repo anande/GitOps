@@ -51,7 +51,10 @@ k3d-argocd-cluster-server-0   Ready    control-plane,master   45s   v1.30.4+k3s1
 
 k create ns argocd
 k get ns
+```
 
+#### For kubernetes manifest based ARGO install 
+```
 k apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/refs/heads/master/manifests/install.yaml
 
 k get deploy -n argocd
@@ -75,7 +78,23 @@ argocd-server                             ClusterIP   10.43.146.207   <none>    
 argocd-server-metrics                     ClusterIP   10.43.157.173   <none>        8083/TCP                     2m46s
 
 k get statefulset -n argocd
+```
 
+#### For HELM based ARGO install  
+
+```
+$ helm repo add argo https://argoproj.github.io/argo-helm
+"argo" has been added to your repositories
+
+$ helm repo update
+
+$ helm search repo argocd
+
+$ helm pull --untar argo/argo-cd
+```
+
+#### For managing ARGO locally  
+```
 brew install argocd
 
 argocd version
