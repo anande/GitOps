@@ -91,6 +91,70 @@ $ helm repo update
 $ helm search repo argocd
 
 $ helm pull --untar argo/argo-cd
+
+```
+- Create argo domain certificates :  
+```
+$ mkcert argocd.local.com "*.local.com"
+
+Created a new certificate valid for the following names 📜
+ - "argocd.local.com"
+ - "*.local.com"
+
+Reminder: X.509 wildcards only go one level deep, so this won't match a.b.local.com ℹ️
+
+The certificate is at "./argocd.local.com+1.pem" and the key at "./argocd.local.com+1-key.pem" ✅
+
+It will expire on 28 April 2027 🗓
+```
+- Create the argocd tls secret that stores these certs :  
+```
+$ kubens argocd
+Context "k3d-ingress-test" modified.
+Active namespace is "argocd".
+
+$ k create secret tls argocd-server-tls --key argocd.local.com+1-key.pem --cert argocd.local.com+1.pem
+secret/argocd-server-tls created
+
+$ helm install argocd . -f values.yaml
+NAME: argocd
+LAST DEPLOYED: Tue Jan 28 22:15:31 2025
+NAMESPACE: argocd
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+In order to access the server UI you have the following options:
+
+1. kubectl port-forward service/argocd-server -n argocd 8080:443
+
+    and then open the browser on http://localhost:8080 and accept the certificate
+
+2. enable ingress in the values file `server.ingress.enabled` and either
+      - Add the annotation for ssl passthrough: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-1-ssl-passthrough
+      - Set the `configs.params."server.insecure"` in the values file and terminate SSL at your ingress: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-2-multiple-ingress-objects-and-hosts
+
+
+After reaching the UI the first time you can login with username: admin and the random password generated during the installation. You can find the password by running:
+
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+(You should delete the initial secret afterwards as suggested by the Getting Started Guide: https://argo-cd.readthedocs.io/en/stable/getting_started/#4-login-using-the-cli)
+```
+- Edit your laptops `/etc/hosts` file to add the ingress external-IP and hostname:
+```
+$ k get ingress
+NAME            CLASS     HOSTS              ADDRESS      PORTS     AGE
+argocd-server   traefik   argocd.local.com   172.18.0.3   80, 443   12m
+
+$ sudo echo "172.18.0.3 argocd.local.com" >> /etc/hosts
+```
+- Get the WEB-UI password from the secret :
+`k get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d && echo`
+- Login to the webUI using :
+```
+u: admin
+p: <as above>
 ```
 
 #### For managing ARGO locally  
@@ -168,3 +232,18 @@ Context 'localhost:8080' updated
 # argocd repo add http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/testing.git --type git --name git_act_runner
 Repository 'http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/testing.git' added
 ```
+
+##### DISCLAIMER:
+As of this date, there's an issue with the ingressClass "traefik"  
+when 2 services are running in different namespaces, but same k3d cluster.
+Traefik creates 2 individual ingress resources per namespaces to access  
+these services on their respective hostnames, however, assigns them the  
+same external-IP.  
+```
+k -n gitea get ingress; k -n argocd get ingress
+NAME    CLASS     HOSTS             ADDRESS      PORTS     AGE
+gitea   traefik   gitea.local.com   172.18.0.3   80, 443   137m
+NAME            CLASS     HOSTS              ADDRESS      PORTS     AGE
+argocd-server   traefik   argocd.local.com   172.18.0.3   80, 443   18m
+```
+To overcome this, Metal-LB can be used as mentioned here.
