@@ -246,4 +246,4 @@ gitea   traefik   gitea.local.com   172.18.0.3   80, 443   137m
 NAME            CLASS     HOSTS              ADDRESS      PORTS     AGE
 argocd-server   traefik   argocd.local.com   172.18.0.3   80, 443   18m
 ```
-To overcome this, Metal-LB can be used as mentioned here.
+To overcome this, Metal-LB can be used [as mentioned here](https://github.com/anande/GitOps/wiki/Use-Metal-LB-to-assign-different-externalIP's-to-services-in-same-k3d-cluster).

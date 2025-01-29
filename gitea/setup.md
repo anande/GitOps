@@ -39,8 +39,7 @@ It will expire on 26 April 2027 🗓
 $ k create ns gitea
 namespace/gitea created
 
-$ k -n gitea create secret tls gitea-ingress-tls-cert --key gitea.local.com+1-key.pem --cert gitea.local.com+1.
-pem 
+$ k -n gitea create secret tls gitea-ingress-tls-cert --key gitea.local.com+1-key.pem --cert gitea.local.com+1.pem 
 secret/gitea-ingress-tls-cert created
 ```
 
