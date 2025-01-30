@@ -49,3 +49,14 @@ echo "172.18.0.120 web-app-1.home-k8s.lab" >> /etc/hosts
 curl web-app-1.home-k8s.lab
 welcome to my web app!
 ```
+
+#### NOTES:
+- One ipaddrpool resource can be shared by multiple sub resource-types like ingress, service(type: Loadbalancers)  
+- If there are mutliple CluterIP based services handled by ingress (that uses the externalIP provided by metal-LB)  
+  then, this type of service will not be allocated unique externalIP from the ipaddrpool range.  
+- For better management of ingress-controller/services, An L2advertisement can be allowed to handle multiple  
+  ipaddrpool's with its own dedicated range (see the `metallLB.png`).  
+- On laptop, the A records are maintained in the `/etc/hosts` file. In case where a single ingress-controller  
+  type is used, only 1 externalIP is allocated to all the per-service ingress created (irrespective of their namespaces)  
+  Hence this externalIP takes care of the internal name resolution (be it TLS or non-TLS i.e whether the ingress uses  
+  certificates or not it will still be resolved correctly).
