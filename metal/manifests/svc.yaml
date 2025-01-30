@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web-app1
+  namespace: default  
   labels:
     app.kubernetes.io/name: web-app1
   name: web-app1
@@ -33,6 +34,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: web-app1
+  namespace: default  
   labels:
     app.kubernetes.io/name: web-app1
 spec:
@@ -50,6 +52,7 @@ spec:
 # kind: Deployment
 # metadata:
 #   name: web-app2
+#   namespace: default
 #   labels:
 #     app.kubernetes.io/name: web-app2
 #   name: web-app2
@@ -81,6 +84,7 @@ spec:
 # kind: Service
 # metadata:
 #   name: web-app2
+#   namespace: default
 #   labels:
 #     app.kubernetes.io/name: web-app2
 # spec:
