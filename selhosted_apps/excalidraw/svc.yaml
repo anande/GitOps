@@ -1,0 +1,13 @@
+# excalidraw-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: excalidraw-service
+  namespace: excalidraw
+spec:
+  # type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: excalidraw

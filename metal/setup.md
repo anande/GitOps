@@ -1,4 +1,4 @@
-#### Install using k8s manifest
+## Install using k8s manifest
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
@@ -60,3 +60,12 @@ welcome to my web app!
   type is used, only 1 externalIP is allocated to all the per-service ingress created (irrespective of their namespaces)  
   Hence this externalIP takes care of the internal name resolution (be it TLS or non-TLS i.e whether the ingress uses  
   certificates or not it will still be resolved correctly).
+
+---
+  
+## Install using HELM
+
+```
+helm repo add metallb https://metallb.github.io/metallb
+helm pull --untar ingress-nginx/ingress-nginx --destination ./helm/
+```
