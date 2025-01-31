@@ -19,3 +19,10 @@ spec:
         image: docker.io/excalidraw/excalidraw:latest
         ports:
         - containerPort: 80
+        resources:
+          requests:
+            memory: "16Mi" 
+            cpu: "50m"    # 50 milli cores (1/20 CPU)
+          limits:
+            memory: "128Mi" # 128 mebibytes 
+            cpu: "100m"
