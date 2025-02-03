@@ -1,3 +1,3 @@
-[submodule "monitoring"]
-	path = monitoring
+[submodule "observability/k8s/monitoring/monitoring"]
+	path = observability/k8s/monitoring/monitoring
 	url = https://github.com/Thakurvaibhav/k8s.git
