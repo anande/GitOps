@@ -37,3 +37,36 @@ kube-prometheus-stack has been installed. Check its status by running:
 
 Visit https://github.com/prometheus-operator/kube-prometheus for instructions on how to create & configure Alertmanager and Prometheus instances using the Operator.
 ```
+
+### To use a specific Grafana version  
+
+Check the **APPLICATION VERSION** and helm **CHART VERSION** from [Artifacthub](https://artifacthub.io/packages/helm/grafana/grafana)  
+
+
+Modify `observability/prometheus/kube-prometheus-stack/charts/grafana/values.yaml` :  
+- `appVersion: 11.4.0`  
+- `version: 8.8.5`  
+
+Also under `observability/prometheus/kube-prometheus-stack/Chart.yaml`:  
+
+```
+### Modify
+...
+- condition: grafana.enabled
+  name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 8.8.*
+...
+```
+
+#### Before upgrading, Perform a dry-run using  
+```
+helm upgrade prometheus . -f values.yaml --dry-run > test-upgrade.txt
+
+bat test-upgrade.txt
+```
+
+## Reference
+
+- [Kube-Prometheus-Stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack)
+- [Kodekloud Prometheus](https://www.youtube.com/watch?v=6xmWr7p5TE0)
