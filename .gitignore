@@ -12,3 +12,4 @@ harbor/registry.harbor.com+1.pem
 crossplane/crossplane-448808-6ed83b305fb2.json
 selhosted_apps/excalidraw/draw.local.io+1-key.pem
 selhosted_apps/excalidraw/draw.local.io+1.pem
+observability/prometheus/kube-prometheus-stack/certs
