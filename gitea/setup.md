@@ -44,8 +44,7 @@ secret/gitea-ingress-tls-cert created
 ```
 
 
-- Install Gitea using helm chart
-
+- Install Gitea using helm chart  
 `helm install gitea . -f values.yaml -n gitea --create-namespace`
 
 - Use `k9s` to monitor resources in `gitea` namespace
@@ -54,10 +53,9 @@ secret/gitea-ingress-tls-cert created
 
 - Login to the webUI using username/password from the helm values.yaml
 
-###### Use Gitea Actions:
+#### Use Gitea Actions:
 
-In order to use actions with hosted gitea runners, you need to manually have node installed inside the runner  
-containers.
+In order to use actions with hosted gitea runners, you need to manually have node.js installed inside the runner containers.  
 
 You can do that by either logging into the container manaully (using k9s shell):
 ```
@@ -83,7 +81,7 @@ gitea-act-runner-0:/data# which node
 gitea-act-runner-0:/data# node -v
 v20.15.1
 ```
-OR adding a step like below in the gitea workflow:
+OR adding a task/step like below in the gitea `.workflow/<workflow_name>.yaml`:
 ```
       - name: install node
         run: apk add --no-cache nodejs
@@ -91,7 +89,7 @@ OR adding a step like below in the gitea workflow:
 Then test the Actions using the example available [at this location](https://docs.gitea.com/usage/actions/quickstart#use-actions).
 
 
-###### Using GPG key :
+#### Using GPG key :
 
 - [Install the GPG binary](https://sourceforge.net/projects/gpgosx/files/GnuPG-2.4.7.dmg/download?use_mirror=webwerks&use_mirror=webwerks&r=https%3A%2F%2Fsourceforge.net%2Fp%2Fgpgosx%2Fdocu%2FDownload%2F)
 - Create a GPG key locally on laptop
@@ -184,4 +182,48 @@ ssb   rsa3072/B72BC540EC2ECD3E 2025-01-26 [E]
 
 ###### References:
 1. https://gitea.com/gitea/helm-chart/pulls/666
-2. [Fix for node package inside gitea runner container](https://forum.gitea.com/t/gitea-actions-cannot-find-node-in-path/7544/5)
+2. [Fix for node package inside gitea runner container](https://forum.gitea.com/t/gitea-actions-cannot-find-node-in-path/7544/5)  
+
+## Integrating Gitea with Keycloak as OIDC
+
+#### Gitea configuration required
+
+- Following settings need to be applied in `/data/gitea/conf/app.ini`. One can do this either by :  
+  1. Accessing the gitea container and directly updating the config like below:
+  ```
+  [openid]
+  ENABLE_OPENID_SIGNIN = true
+  ENABLE_OPENID_SIGNUP = true
+  ```
+  2. OR in the helm `values.yaml` using below and then upgrading the helm chart:
+  ```
+  gitea:
+   config:
+   ...
+     openid:
+       ENABLE_OPENID_SIGNIN: true
+       ENABLE_OPENID_SIGNUP: true
+  ```
+
+**Gitea Authentication Source (Web UI):** In Gitea, go to "Site Administration" and then "Authentication Sources". Add a new authentication source with these settings:  
+    -   _Authentication Type_: `OAuth2`  
+    -   _Authentication Name_: A descriptive name (e.g., `Keycloak`)  
+    -   _OAuth2 Provider_: `OpenID Connect`  
+    -   _Client ID_: The Client ID from Keycloak (e.g., `gitea`)  
+    -   _Client Secret_: The Client Secret from Keycloak  
+    -   _Icon URL: (Optional)_  [Official Keycloak Icon URL](https://www.keycloak.org/resources/images/icon.svg)  
+    -   _OpenID Connect Auto Discovery URL:_ The Keycloak OpenID Connect discovery URL. This can be found in your Keycloak realm settings under "Endpoints". 
+
+- **If using docker-manager-keycloak-container**: Get the Docker Host IP using  below. The URL format is typically: `http://YOUR_DOCKER_HOST_IP:PORT_NO/realms/YOUR_REALM/.well-known/openid-configuration`
+```
+ifconfig | grep "192."
+	inet 192.168.1.21 netmask 0xffffff00 broadcast 192.168.1.255
+	inet 192.168.65.1 netmask 0xffffff00 broadcast 192.168.65.255
+```
+- **If using k8s-managed-keycloak**: The format is typically: `https://YOUR_KEYCLOAK_INGRESS_URL/auth/realms/YOUR_REALM/.well-known/openid-configuration` (Use this EXACT URL format).  Replace `YOUR_KEYCLOAK_INGRESS_URL` and `YOUR_REALM` with your actual values.
+
+![Site Administration > Identity & Access > Authentication Sources ](images/gitea_settings1.png)
+![Authentication Source](images/gitea_settings2.png)
+
+###### References: 
+1. [SSO with keycloak](https://www.talkingquickly.co.uk/gitea-sso-with-keycloak-openldap-openid-connect)

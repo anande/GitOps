@@ -523,6 +523,10 @@ gitea:
     server:
       SSH_PORT: 22 # rootful image
       SSH_LISTEN_PORT: 2222 # rootless image
+    # Settings for enabling OIDC for Keycloak integration
+    # openid:
+    #   ENABLE_OPENID_SIGNIN: true
+    #   ENABLE_OPENID_SIGNUP: true
   #
   #  security:
   #    PASSWORD_COMPLEXITY: spec
