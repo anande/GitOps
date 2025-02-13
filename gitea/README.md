@@ -224,6 +224,7 @@ ifconfig | grep "192."
 
 ![Site Administration > Identity & Access > Authentication Sources ](images/gitea_settings1.png)
 ![Authentication Source](images/gitea_settings2.png)
+![OIDC Login Option](images/gitea_settings3.png)
 
 ###### References: 
 1. [SSO with keycloak](https://www.talkingquickly.co.uk/gitea-sso-with-keycloak-openldap-openid-connect)
