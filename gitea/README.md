@@ -223,7 +223,9 @@ ifconfig | grep "192."
 - **If using k8s-managed-keycloak**: The format is typically: `https://YOUR_KEYCLOAK_INGRESS_URL/auth/realms/YOUR_REALM/.well-known/openid-configuration` (Use this EXACT URL format).  Replace `YOUR_KEYCLOAK_INGRESS_URL` and `YOUR_REALM` with your actual values.
 
 ![Site Administration > Identity & Access > Authentication Sources ](images/gitea_settings1.png)
-![Authentication Source](images/gitea_settings2.png)
+![Authentication Source](images/gitea_settings2.png)  
+
+Login with the user thats present in Keycloak. One can then link 
 ![OIDC Login Option](images/gitea_settings3.png)
 
 ###### References: 

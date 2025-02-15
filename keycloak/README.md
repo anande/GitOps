@@ -88,3 +88,10 @@ Under Client Scopes these should be set to Default
 ![](images/keycloak_settings_6.png)
 
 After doing this - one can login to their app of choice to test OIDC login further.
+
+---
+#### References
+1. [Keycloak Docker Images](https://quay.io/repository/keycloak/keycloak?tab=tags)
+2. [Keycloak Getting Started](https://www.keycloak.org/getting-started/getting-started-docker)
+3. [Gitea Forums](https://forum.gitea.com/t/guide-keycloak-and-gitea/9457)
+4. [Keycloak Blog](https://blog.gurucomputing.com.au/Authentication%20with%20Keycloak/Protecting%20Applications%20with%20SSO/)
