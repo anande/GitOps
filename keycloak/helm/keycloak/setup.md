@@ -2,7 +2,7 @@
 
 Create and store adminPassword as secret in the same keycloak namespace:
 ```
-kubectl create secret generic keycloak-admin-password --from-literal=adminPassword='RedHat1!' -n keycloak2
+kubectl create secret generic keycloak-admin-password --from-literal=adminPassword='password!' -n keycloak2
 secret/keycloak-admin-password created
 ```
 
