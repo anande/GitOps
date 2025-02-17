@@ -76,11 +76,11 @@ Under Settings
 - CLIENT SCOPES
 
 ```
-Under Client Scopes these should be optional
+Under Client Scopes these should be `Optional`
 
  - acr, address, microprofile-jwt, phone
 
-Under Client Scopes these should be set to Default
+Under Client Scopes these should be set to `Default`
 
  - basic, email, offline_access, profile, roles, web-origins
 
