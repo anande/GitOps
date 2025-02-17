@@ -233,7 +233,7 @@ Context 'localhost:8080' updated
 Repository 'http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/testing.git' added
 ```
 
-##### DISCLAIMER:
+##### DISCLAIMER (Knowledge Correction - This is not an issue):
 As of this date, there's an issue with the ingressClass "traefik"  
 when 2 services are running in different namespaces, but same k3d cluster.
 Traefik creates 2 individual ingress resources per namespaces to access  
@@ -247,3 +247,21 @@ NAME            CLASS     HOSTS              ADDRESS      PORTS     AGE
 argocd-server   traefik   argocd.local.com   172.18.0.3   80, 443   18m
 ```
 To overcome this, Metal-LB can be used [as mentioned here](https://github.com/anande/GitOps/wiki/Use-Metal-LB-to-assign-different-externalIP's-to-services-in-same-k3d-cluster).
+
+## Upgrading ARGO-CD
+Check the current version of argocd in `Chart.yaml`:
+```
+appVersion: v2.13.3
+```
+If you want to upgrade to the latest version, compare this to the upstream version available at :
+1. [Community maintained helm chart](https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/Chart.yaml)
+2. [ARGO Official Docs](https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/#tested-versions)
+
+Once you find any newer version compared to current, you can :
+```
+helm repo update
+
+## Make sure you are in the helm charts dir:
+
+helm upgrade argocd . -f values.yaml -n argocd
+```
