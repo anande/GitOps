@@ -1,0 +1,1 @@
+ArgoCD UI > Create New APP > Edit as YAML > Create APP
