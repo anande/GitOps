@@ -13,4 +13,4 @@ secretGenerator:
 
   - name: keycloak-admin-password
     literals:
-      - adminPassword='RedHat1!'
+      - adminPassword='password'
