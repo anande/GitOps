@@ -1,9 +1,17 @@
+#### Situation
+
+To configure two services in different namespaces within the same k3d cluster to use Traefik as an Ingress controller, while ensuring they have different external IPs.
+
+## Overview
+
+Traefik typically uses a LoadBalancer service type, which may assign the same external IP to multiple services if they share the same Ingress class and configuration. To achieve distinct external IPs for different services, you can utilize MetalLB in conjunction with Traefik to manage multiple external IPs.
+
 ## Install using k8s manifest
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
 ```
-- Check the name of the docket network assigned to your k3d cluster using :  
+- Check the name of the docker network assigned to your k3d cluster using :  
 ```
 docker network ls
 ```

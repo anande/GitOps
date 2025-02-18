@@ -16,3 +16,4 @@ observability/prometheus/kube-prometheus-stack/certs
 keycloak/manifests-based/keycloak.local.com+1-key.pem
 keycloak/manifests-based/keycloak.local.com+1.pem
 vscodium_settings*/*
+keycloak/helm/keycloak/certs
