@@ -12,3 +12,12 @@ Create and store TLS certificates as secret in the same keycloak namespace:
 kubectl create secret tls keycloak-tls-cert --key ./keycloak.local.com+1-key.pem --cert ./keycloak.local.com+1.pem -n keycloak2
 secret/keycloak-tls-cert created
 ```
+
+## TODO
+
+Create an initialization bash script with kc commands that will:
+- Create realm
+- Create User and set password
+- Create Group
+- Add User to group
+- Create client, credentials, scopes
