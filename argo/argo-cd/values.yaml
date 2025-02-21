@@ -2156,7 +2156,8 @@ server:
   ## Server metrics service configuration
   metrics:
     # -- Deploy metrics service
-    enabled: false
+    # enabled: false
+    enabled: true
     service:
       # -- Metrics service type
       type: ClusterIP
@@ -2167,7 +2168,8 @@ server:
       # -- Metrics service labels
       labels: {}
       # -- Metrics service port
-      servicePort: 8083
+      # servicePort: 8083
+      servicePort: 8082
       # -- Metrics service port name
       portName: http-metrics
     serviceMonitor:

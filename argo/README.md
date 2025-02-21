@@ -265,3 +265,31 @@ helm repo update
 
 helm upgrade argocd . -f values.yaml -n argocd
 ```
+
+## Monitor ARGO-CD via Prometheus:
+
+#### Prometheus Config
+```
+server:
+  ...
+  metrics:
+  enabled: true
+  service:
+    servicePort: 8082
+```
+
+#### ArgoCD Config
+```
+    additionalScrapeConfigs:
+    - job_name: argocd
+      metrics_path: "/metrics"
+      static_configs:
+        - targets: 
+            - "argocd-server-metrics.argocd.svc.cluster.local:8082"  ## Check which exact metrics service exposes 8082 for ARGOCD  
+```
+
+#### Upgrade Helm charts for both argo and prometheus:
+```
+helm upgrade prometheus . -f values.yaml -n prometheus
+helm upgrade argocd . -n argocd -f values.yaml
+```
