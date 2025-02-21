@@ -14,3 +14,8 @@ secretGenerator:
   - name: keycloak-admin-password
     literals:
       - adminPassword='password'
+
+  - name: keycloak-postgresql-password
+    literals:
+      - postgres-password='password!'
+      - password='password!'        

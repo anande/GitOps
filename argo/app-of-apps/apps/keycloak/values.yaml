@@ -355,7 +355,7 @@ containerSecurityContext:
 ## @param resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if resources is set (resources is recommended for production).
 ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
 ##
-resourcesPreset: "small"
+resourcesPreset: "medium"
 ## @param resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
 ## Example:
 ## resources:
@@ -392,10 +392,10 @@ livenessProbe:
 ##
 readinessProbe:
   enabled: true
-  initialDelaySeconds: 30
+  initialDelaySeconds: 100
   periodSeconds: 10
   timeoutSeconds: 1
-  failureThreshold: 3
+  failureThreshold: 5
   successThreshold: 1
 ## When enabling this, make sure to set initialDelaySeconds to 0 for livenessProbe and readinessProbe
 ## @param startupProbe.enabled Enable startupProbe on Keycloak containers
@@ -1333,13 +1333,16 @@ keycloakConfigCli:
 postgresql:
   enabled: true
   auth:
+    # postgresPassword: "password!" ##<<----This is without using existingSecret
     postgresPassword: ""
     username: bn_keycloak
+    # password: "password!" ##<<----This is without using existingSecret
     password: ""
     database: bitnami_keycloak
-    existingSecret: ""
+    existingSecret: "keycloak-postgresql-password"
     secretKeys:
       userPasswordKey: password
+      postgres-password: postgres-password
   architecture: standalone
 ## External PostgreSQL configuration
 ## All of these values are only used when postgresql.enabled is set to false
