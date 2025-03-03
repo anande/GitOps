@@ -6,6 +6,36 @@ To configure two services in different namespaces within the same k3d cluster to
 
 Traefik typically uses a LoadBalancer service type, which may assign the same external IP to multiple services if they share the same Ingress class and configuration. To achieve distinct external IPs for different services, you can utilize MetalLB in conjunction with Traefik to manage multiple external IPs.
 
+## Setting required when using with K3D
+
+When testing other LB-Controllers like MetalLB or Envoy Gateway, the built-in Klipper LoadBalancer in K3s needs to be disabled - to avoid port conflicts in lightweight testing environments. You can pass the appropriate argument while creating the cluster.
+
+```
+k3d cluster create my-cluster --k3s-server-arg '--disable=servicelb'
+```
+Once the cluster is up, check that Klipper LoadBalancer is disabled:
+
+`kubectl get pods -n kube-system`
+
+You should not see any pods like:
+
+`svclb-...`
+
+#### You can also permanently disable serviceLB using cluster-config like :
+```
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: my-cluster
+options:
+  k3s:
+    extraArgs:
+      - arg: "--disable=servicelb"
+        nodeFilters:
+          - server:*
+```
+
+
 ## Install using k8s manifest
 
 ```
