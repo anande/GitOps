@@ -11,7 +11,7 @@ Traefik typically uses a LoadBalancer service type, which may assign the same ex
 When testing other LB-Controllers like MetalLB or Envoy Gateway, the built-in Klipper LoadBalancer in K3s needs to be disabled - to avoid port conflicts in lightweight testing environments. You can pass the appropriate argument while creating the cluster.
 
 ```
-k3d cluster create my-cluster --k3s-server-arg '--disable=servicelb'
+k3d cluster create my-cluster --k3s-arg '--disable=servicelb@server:0'
 ```
 Once the cluster is up, check that Klipper LoadBalancer is disabled:
 
@@ -35,6 +35,13 @@ options:
           - server:*
 ```
 
+#### [Optional] If you would like to disable other K3d components like metrics-server, traefik-ingress:
+```
+k3d cluster create my-cluster \
+--k3s-arg '--disable=servicelb@server:0' \
+--k3s-arg '--disable=metrics-server@server:0' \
+--k3s-arg '--disable=traefik@server:0
+```
 
 ## Install using k8s manifest
 
