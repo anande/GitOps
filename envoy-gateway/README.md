@@ -31,12 +31,12 @@ K3d ships with Klipper as the LoadbalancerController which controls the serviceL
 
 ![](eg_resources/EnvoyGW.png)
 
-Install test App:
+Install test App - `httpbin` :
 ```
 kubectl apply -f https://raw.githubusercontent.com/istio/istio/master/samples/httpbin/httpbin.yaml
 ```
 
-Check the externalIP/Address in the following output and update /etc/hosts with the relavant hostname:IP combo.
+Check the externalIP/Address in the following output and update `/etc/hosts` with the relavant `IP-addr:hostname` combo.
 
 `k get gateway`
 
@@ -52,30 +52,7 @@ To enable **client IP logging** using the `X-Forwarded-For` header in **Envoy Ga
 
 Envoy Gateway supports access logging customization, which allows you to log the `X-Forwarded-For` header (client IP). Update the `EnvoyProxy` resource to include the desired log format.
 
-1. Create or update an `EnvoyProxy` YAML configuration file (`envoyproxy-client-ip.yaml`) to enable access logging with `X-Forwarded-For`. Here's an example:
-
-```yaml
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: EnvoyProxy
-metadata:
-  name: client-ip-logging
-  namespace: envoy-gateway-system
-spec:
-  telemetry:
-    accessLog:
-      settings:
-        - format:
-            type: Text
-            text: |
-              [%START_TIME%] "%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL%" %RESPONSE_CODE% %RESPONSE_FLAGS% %BYTES_RECEIVED% %BYTES_SENT% %DURATION% "%REQ(X-FORWARDED-FOR)%" "%REQ(USER-AGENT)%" "%REQ(X-REQUEST-ID)%" "%REQ(:AUTHORITY)%" "%UPSTREAM_HOST%"
-          sinks:
-            - type: OpenTelemetry
-              openTelemetry:
-                host: otel-collector.monitoring.svc.cluster.local
-                port: 4317
-```
-
-This configuration ensures that the `X-Forwarded-For` header is included in the access logs.
+1. Create or update an `EnvoyProxy` YAML configuration file [envoyproxy-client-ip.yaml](eg_resources/eg-proxy-otlp-sink.yaml) to enable access logging with `X-Forwarded-For`. This configuration ensures that the `X-Forwarded-For` header is included in the access logs.
 
 2. Apply the configuration:
    ```bash
@@ -88,14 +65,66 @@ This configuration ensures that the `X-Forwarded-For` header is included in the 
 
 Once the configuration is applied, you can verify the logs to ensure that client IPs are being logged correctly.
 
-1. If you're using OpenTelemetry (as per the example), verify logs in your observability stack (e.g., Loki, Elasticsearch, etc.). For example, if using Loki:
-   ```bash
-   curl -s "http://$LOKI_IP:3100/loki/api/v1/query_range" --data-urlencode "query={job=\"otel_envoy_accesslog\"}" | jq '.data.result.values'
-   ```
+1. Using curl to httpbin app:
+```
+curl http://httpbin.rsmac.com/dump/request
+GET /dump/request HTTP/1.1
+Host: httpbin.rsmac.com
+Accept: */*
+User-Agent: curl/8.7.1
+X-Forwarded-For: 172.24.0.1
+X-Forwarded-Proto: http
+X-Request-Id: fb5761fe-a07f-416f-b892-46e38faf783c
 
-2. If you're not using OpenTelemetry, you can configure a different sink e.g. [file-based logging](eg_resources/eg-proxy-file-sink.yaml) and check logs directly.
 
-### **Optional Step: Enable Trusted Hops for Accurate Client IPs**
+
+curl http://httpbin.rsmac.com/anything | jq .headers | grep -A1 "X-Forwarded-For"
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   486  100   486    0     0  55772      0 --:--:-- --:--:-- --:--:-- 60750
+  "X-Forwarded-For": [
+    "172.24.0.1"
+```
+
+
+If you're not using OpenTelemetry, you can configure a different sink e.g. [file-based logging](eg_resources/eg-proxy-file-sink.yaml) and check logs directly.
+
+2. From loki GUI: 
+
+Get the username/password from the stored secret  
+
+username: `k get secrets loki-grafana -n loki -o jsonpath="{.data.admin-user}" | base64 -d`  
+
+password: `k get secrets loki-grafana -n loki -o jsonpath="{.data.admin-password}" | base64 -d`  
+
+Login to the Grafana-UI, If you have the `loki-grafana` service as `type: LoadBalancer`, you should get an `EXTERNAL-IP` (from the metalLB ip-addr-pool) which you can create an A-record in the `/etc/hosts` file.
+
+![loki_login](../observability/loki-stack/images/loki_login.png)
+
+Use the credentials obtained from the secrets.  
+
+Once logged in, select Loki as the Datasource:
+
+![loki_datasource](../observability/loki-stack/images/loki_datasource.png)
+
+#### Explore Loki Datasource:  
+- Query: Select `job > envoy-gateway-system/envoy` and observe the logs search result (Make sure you have ran Step 2.1 above using curl commands to interact with the app):
+
+![loki_query](../observability/loki-stack/images/loki_query.png)
+
+![loki_logs](../observability/loki-stack/images/loki_logs_result.png)
+
+- Query: Select `job > opentelemetry/openetelemetry-collector`
+
+![loki_otel_job](../observability/loki-stack/images/loki_otel_job.png)
+
+![loki_otel_logs](../observability/loki-stack/images/loki_otel_logs.png)
+
+#### NOTE: 
+1. Make sure that gRPC server started logs are seen in there.  
+2. Make sure that there are no loki or exporter related errors seen in these logs.
+
+### **Optional Step (not absolutely required): Enable Trusted Hops for Accurate Client IPs**
 
 If your Envoy Gateway is behind another proxy (e.g., a load balancer), you need to configure trusted hops to ensure accurate client IP logging from the `X-Forwarded-For` header.
 
@@ -111,17 +140,9 @@ spec:
   telemetry:
     accessLog:
       settings:
-        - format:
-            type: Text
-            text: |
-              [%START_TIME%] "%REQ(:METHOD)% %REQ(X-FORWARDED-FOR)%" %RESPONSE_CODE% %RESPONSE_FLAGS%
-          sinks:
-            - type: OpenTelemetry
-              openTelemetry:
-                host: otel-collector.monitoring.svc.cluster.local
-                port: 4317
+        ...
     proxyConfig:
-      xff_num_trusted_hops: 1 # Adjust based on your proxy setup.
+      xff_num_trusted_hops: 2 # Adjust based on your proxy setup.
 ```
 
 2. Apply this configuration as before.
@@ -140,5 +161,11 @@ By enabling access logging and including `%REQ(X-FORWARDED-FOR)%` in the log for
 [7] https://newreleases.io/project/artifacthub/helm/envoy-gateway/gateway-helm/release/1.2.0  
 [8] https://stackoverflow.com/questions/tagged/envoyproxy  
 
+---  
+
+Answer from Perplexity: https://www.perplexity.ai/search/docker-desktop-kubernetes-fail-0T1nZkpiRu6jtmvwTZ0tyQ?utm_source=copy_output  
+
 ---
-Answer from Perplexity: https://www.perplexity.ai/search/docker-desktop-kubernetes-fail-0T1nZkpiRu6jtmvwTZ0tyQ?utm_source=copy_output
+#### References:  
+- [Opentelemetry Enablement](../observability/opentelemetry/README.md)  
+- [Loki Enablement](../observability/loki-stack/README.md)  
