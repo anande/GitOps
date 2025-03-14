@@ -276,6 +276,10 @@ server:
   enabled: true
   service:
     servicePort: 8082
+
+  serviceMonitor:
+    # -- Enable a prometheus ServiceMonitor
+    enabled: true
 ```
 
 #### ArgoCD Config

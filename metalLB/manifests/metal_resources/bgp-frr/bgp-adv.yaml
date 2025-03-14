@@ -1,0 +1,8 @@
+apiVersion: metallb.io/v1beta1
+kind: BGPAdvertisement
+metadata:
+  name: frr-test-adv
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - bgp-pool

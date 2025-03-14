@@ -1,0 +1,10 @@
+apiVersion: metallb.io/v1beta2
+kind: BGPPeer
+metadata:
+  name: bgp-peers
+  namespace: metallb-system
+spec:
+  myASN: 64512  # Private ASN for MetalLB
+  peerASN: 64512  # ASN of your router or another FRR instance
+  peerAddress: 172.18.0.1  # Change this to your router's IP
+  bfdProfile: testbfdprofile

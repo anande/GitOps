@@ -97,14 +97,12 @@ welcome to my web app!
 
 #### NOTES:
 - One ipaddrpool resource can be shared by multiple sub resource-types like ingress, service(type: Loadbalancers)  
-- If there are mutliple CluterIP based services handled by ingress (that uses the externalIP provided by metal-LB)  
-  then, this type of service will not be allocated unique externalIP from the ipaddrpool range.  
-- For better management of ingress-controller/services, An L2advertisement can be allowed to handle multiple  
-  ipaddrpool's with its own dedicated range (see the `metallLB.png`).  
-- On laptop, the A records are maintained in the `/etc/hosts` file. In case where a single ingress-controller  
-  type is used, only 1 externalIP is allocated to all the per-service ingress created (irrespective of their namespaces)  
-  Hence this externalIP takes care of the internal name resolution (be it TLS or non-TLS i.e whether the ingress uses  
-  certificates or not it will still be resolved correctly).
+- If there are mutliple CluterIP based services handled by ingress (that uses the externalIP provided by metal-LB) then, this type of service will not be allocated unique externalIP from the ipaddrpool range.  
+- For better management of ingress-controller/services, An L2advertisement can be allowed to handle multiple  ipaddrpool's with its own dedicated range.  
+  ###### See below![metallLB.png](./metalLB.png)
+- On laptop, the A records are maintained in the `/etc/hosts` file. In case where a single ingress-controller type is used, only 1 externalIP is allocated to all the per-service ingress created (irrespective of their namespaces)  
+
+  Hence this externalIP takes care of the internal name resolution (be it TLS or non-TLS i.e whether the ingress uses certificates or not it will still be resolved correctly).
 
 ---
   
@@ -114,3 +112,45 @@ welcome to my web app!
 helm repo add metallb https://metallb.github.io/metallb
 helm pull --untar ingress-nginx/ingress-nginx --destination ./helm/
 ```
+If required - Modify the `values.yaml` as desired and then  
+```
+helm install metallb metallb/metallb \
+--values values.yaml \
+--namespace metallb \
+--create-namespace
+```
+
+## FRR mode testing
+
+Create a k3d cluster using :
+```
+k3d cluster create metal-frr \
+--agents 3 \
+--k3s-arg "--disable=traefik@server:*" \
+--k3s-arg "--disable=servicelb@server:*"
+```
+
+Edit `values.yaml` and Install via helm :
+```
+frrk8s:
+  enabled: true
+```
+Install with these values 
+```
+helm install metallb . --values values.yaml -n metallb-system --create-namespace
+```
+Apply the relevant BGP manifests :
+```
+k apply -f bgp-bfdprofile.yaml
+k apply -f bgp-peer.yaml
+k apply -f bgp-pool.yaml
+k apply -f bgp-adv.yaml
+k apply -f bgp-frr-config.yaml
+```
+
+Then deploy a [sample_app](./manifests/sample_app/app.yaml)  
+`k apply -f app.yaml`
+
+and port-forward this apps LoadBalancer Service (NOTE: This service will be using an externalIP from the bgp-pool range) to your localhost port 80:8000 and access using http://localhost:8000. 
+
+One can then go ahead and try putting this service behind HTTPRoute using EnvoyGateway alongwith the [httpbin service](../envoy-gateway/sample_apps/httpbin/httpbin.yaml).

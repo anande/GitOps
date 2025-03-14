@@ -28,6 +28,7 @@ metadata:
     app: httpbin
     service: httpbin
 spec:
+  externalTrafficPolicy: Local #Required for preserving local client IP instead of exposing the Cluster/Node IP to EnvoyProxy
   ports:
   - name: http
     port: 8000

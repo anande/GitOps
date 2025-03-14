@@ -1,3 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: index-html-config
+  namespace: default
+data:
+  index.html: |
+    <h4> Welcome to my web app </h4><br>
+    This "index.html" is maintained in its own ConfigMap<br>
+    Deployed using metalLB running in BGP-FRR mode!
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,7 +17,6 @@ metadata:
   namespace: default  
   labels:
     app.kubernetes.io/name: web-app1
-  name: web-app1
 spec:
   replicas: 1
   selector:
@@ -19,17 +30,27 @@ spec:
       containers:
       - image: nginx
         name: web-app1
-        command: 
-          - /bin/sh
-          - -c
-          - "echo 'welcome to my web app 1!' > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"
+        volumeMounts:
+        - name: index-html-volume
+          mountPath: /usr/share/nginx/html/index.html
+          subPath: index.html
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "0.5"
+          limits:
+            memory: "128Mi"
+            cpu: "0.5"          
+      volumes:
+      - name: index-html-volume
+        configMap:
+          name: index-html-config          
       dnsConfig:
-            options:
-              - name: ndots
-                value: "2"
+        options:
+          - name: ndots
+            value: "2"
 
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -38,6 +59,7 @@ metadata:
   labels:
     app.kubernetes.io/name: web-app1
 spec:
+  externalTrafficPolicy: Local #Required for preserving local client IP instead of exposing the Cluster/Node IP to EnvoyProxy
   selector:
     app.kubernetes.io/name: web-app1
   ports:
@@ -45,14 +67,14 @@ spec:
     port: 80
     protocol: TCP
     targetPort: 80
-  # type: LoadBalancer
+  type: LoadBalancer
 # ---
 
 # apiVersion: apps/v1
 # kind: Deployment
 # metadata:
 #   name: web-app2
-#   namespace: default
+#   namespace: default  
 #   labels:
 #     app.kubernetes.io/name: web-app2
 #   name: web-app2
@@ -74,9 +96,9 @@ spec:
 #           - -c
 #           - "echo 'welcome to my web app 2!' > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"
 #       dnsConfig:
-#             options:
-#               - name: ndots
-#                 value: "2"
+#         options:
+#           - name: ndots
+#             value: "2"
 
 # ---
 
@@ -84,7 +106,7 @@ spec:
 # kind: Service
 # metadata:
 #   name: web-app2
-#   namespace: default
+#   namespace: default  
 #   labels:
 #     app.kubernetes.io/name: web-app2
 # spec:

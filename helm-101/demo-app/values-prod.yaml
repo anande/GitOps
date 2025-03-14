@@ -2,4 +2,4 @@ namespace: dev
 
 configmap:
   data: 
-    CUSTOM_HEADER: "Welcome to DEV!"
+    CUSTOM_HEADER: "Welcome to PROD! namespace=prod"

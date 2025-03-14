@@ -10,4 +10,4 @@ image:
 configmap:
   name: myconfigmapv1.0
   data: 
-    CUSTOM_HEADER: "This was deployed with HELM! in namespace default"
+    CUSTOM_HEADER: "This was deployed with HELM! in namespace=default"
