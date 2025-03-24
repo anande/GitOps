@@ -44,8 +44,14 @@ secret/gitea-ingress-tls-cert created
 ```
 
 
-- Install Gitea using helm chart  
-`helm install gitea . -f values.yaml -n gitea --create-namespace`
+- Install Gitea using available helm chart  
+  `helm install gitea . -f values.yaml -n gitea --create-namespace`
+
+- (Optionally) Search for latest available chart versions using:  
+  `helm search repo gitea-charts --versions`  
+
+- (Optionally) Pull that latest available chart to modify it  
+  `helm pull --untar gitea-charts/gitea --version 11.0.0`
 
 - Use `k9s` to monitor resources in `gitea` namespace
 
@@ -230,3 +236,4 @@ Login with the user thats present in Keycloak. One can then link
 
 ###### References: 
 1. [SSO with keycloak](https://www.talkingquickly.co.uk/gitea-sso-with-keycloak-openldap-openid-connect)
+2. [Helm News](https://blog.gitea.com/helm-chart-v11-release)

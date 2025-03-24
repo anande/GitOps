@@ -23,6 +23,8 @@ k apply -f envoy-gw-class.yaml
 k apply -f envoy-gw.yaml
 
 k apply -f envoy-http-route.yaml
+
+k apply -f envoyproxy-file-sink.yaml
 ```
 
 By default Envoy-Gateway relies on the Clusters LoadBalancerController to assign it an ExternalIP since its a LoadBalancer type service running in its own namespace. The LoadBalancer can be anything (MetalLB/Traefik etc.) There's no need for ingressController presence in the cluster.
