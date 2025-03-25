@@ -57,7 +57,62 @@ secret/gitea-ingress-tls-cert created
 
 - Make sure you update the `/etc/hosts` file with the address of the ingress.
 
-- Login to the webUI using username/password from the helm values.yaml
+- Login to the webUI using username:password from the helm values.yaml
+
+#### Push your app code to your selfhosted Gitea repo:  
+
+- Move to [your app directory](../helm-101/demo-app/)  
+- Initialize git  
+  ```
+  git init
+  
+  
+  git checkout -b main
+  Switched to a new branch 'main'
+  
+  
+  git status
+  On branch main
+
+  No commits yet
+
+  Untracked files:
+    (use "git add <file>..." to include in what will be committed)
+    .helmignore
+    Chart.yaml
+    templates/
+    values-dev.yaml
+    values-prod.yaml
+    values.yaml
+
+  nothing added to commit but untracked files present (use "git add" to track)
+  
+  
+  git add .
+
+  
+  git remote add origin http://gitea.local.com/gitea_admin/helm-demo.git
+
+
+  git commit -m "first commit"
+
+
+  git push -u origin main
+  Username for 'http://gitea.local.com': gitea_admin
+  Password for 'http://gitea_admin@gitea.local.com': 
+  Enumerating objects: 12, done.
+  Counting objects: 100% (12/12), done.
+  Delta compression using up to 8 threads
+  Compressing objects: 100% (12/12), done.
+  Writing objects: 100% (12/12), 3.18 KiB | 814.00 KiB/s, done.
+  Total 12 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+  remote: . Processing 1 references
+  remote: Processed 1 references in total
+  To http://gitea.local.com/gitea_admin/demo-app.git
+  * [new branch]      main -> main
+  branch 'main' set up to track 'origin/main'.
+
+  ```
 
 #### Use Gitea Actions:
 
