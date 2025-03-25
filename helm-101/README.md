@@ -1,7 +1,7 @@
 
 # Create the helmchart
 ```
-helm create webapp1
+helm create demo-app
 ```
 
 # Follow along 
@@ -18,7 +18,7 @@ Use those and copy-paste them in the `templates/` folder.
 ```
 # Make sure you are in the desired namespace
 
-helm install mywebapp-release webapp1/ --values webapp1/values.yaml -n default
+helm install mywebapp-release demo-app/ --values demo-app/values.yaml -n default
 
 # This assumes that your values.yaml file is blank and uses direct values from your templates when the values were not even templatized.
 
@@ -77,6 +77,36 @@ helm cm-push demo-app-0.1.0.tgz GPGtest
 Pushing demo-app-0.1.0.tgz to GPGtest...
 Done.
 ```
+- To search for all the versions in your helm package repo
+  ```
+  helm search repo helm-demo --versions
+  NAME             	CHART VERSION	APP VERSION	DESCRIPTION                
+  helm-demo/demo-app	0.1.1        	0.1.1      	A Helm chart for Kubernetes
+  helm-demo/demo-app	0.1.0        	0.1.0      	A Helm chart for Kubernetes
+  ```
+
+- If you would like to use/work with one of these HELM charts, you can:
+  ```
+  mkdir test; cd test
+  
+  helm pull --untar helm-demo/demo-app --version v0.1.1
+
+  tree demo-app/
+  demo-app/
+  ├── Chart.yaml
+  ├── templates
+  │   ├── NOTES.txt
+  │   ├── app.yaml
+  │   ├── cm.yaml
+  │   ├── svc.yaml
+  │   └── tests
+  │       └── test-connection.yaml
+  ├── values-dev.yaml
+  ├── values-prod.yaml
+  └── values.yaml
+
+  2 directories, 9 files
+  ```
 
 ## NOTES
 - By having multiple `values-xxx.yaml` in your chart, you can acheive the kustomize effect on managing your k8s resources.
