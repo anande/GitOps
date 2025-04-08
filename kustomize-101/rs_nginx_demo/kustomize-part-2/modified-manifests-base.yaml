@@ -1,0 +1,65 @@
+apiVersion: v1
+data:
+  index.html: <head> <title>Welcome to my web app</title> </head> <body bgcolor="Salmon">
+    <h1>Welcome to my web app</h1><br> This "index.html" is maintained in its own
+    ConfigMap<br> Deployed using HELM </body>
+kind: ConfigMap
+metadata:
+  name: index-html-config
+  namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: mywebapp
+  name: mywebapp
+  namespace: default
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app.kubernetes.io/name: mywebapp
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: mywebapp
+  name: mywebapp
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mywebapp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mywebapp
+    spec:
+      containers:
+      - image: nginx:stable
+        name: mywebapp
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: 128Mi
+          requests:
+            cpu: "0.5"
+            memory: 64Mi
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/index.html
+          name: index-html-volume
+          subPath: index.html
+      dnsConfig:
+        options:
+        - name: ndots
+          value: "2"
+      volumes:
+      - configMap:
+          name: index-html-config
+        name: index-html-volume

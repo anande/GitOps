@@ -1,0 +1,41 @@
+---
+# Source: webapp1/templates/app.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mywebapp
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: mywebapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mywebapp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mywebapp
+    spec:
+      containers:
+      - image: "nginx:stable"
+        name: mywebapp
+        volumeMounts:
+        - name: index-html-volume
+          mountPath: /usr/share/nginx/html/index.html
+          subPath: index.html
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "0.5"
+          limits:
+            memory: "128Mi"
+            cpu: "0.5"          
+      volumes:
+      - name: index-html-volume
+        configMap:
+          name: index-html-config-dev
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"

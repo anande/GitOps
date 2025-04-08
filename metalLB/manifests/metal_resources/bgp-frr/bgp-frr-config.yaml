@@ -6,10 +6,25 @@ metadata:
 spec:
   bgp:
     routers:
-    - asn: 64512
-      neighbors:
-      - address: 172.18.0.1
-        asn: 64512
-        toReceive:
-          allowed:
-            mode: all
+    # - asn: 64512
+    #   neighbors:
+    #   - address: 172.18.0.1
+    #     asn: 64512
+    #     toReceive:
+    #       allowed:
+    #         mode: all
+      - asn: 65000
+        neighbors:
+          # ToR0 (ASN 65010)
+          - address: 172.20.20.8  # IP address of ToR0
+            asn: 65010           # ASN of ToR0
+            toReceive:
+              allowed:
+                mode: all        # Accept all prefixes from ToR0
+
+          # ToR1 (ASN 65011)
+          - address: 172.20.20.6  # IP address of ToR1
+            asn: 65011           # ASN of ToR1
+            toReceive:
+              allowed:
+                mode: all        # Accept all prefixes from ToR1

@@ -1,8 +1,15 @@
 name: bgp-topo
+mgmt:
+  network: clab
+  ipv4-subnet: 172.20.20.0/24
+  ipv6-subnet: 3fff:172:20:20::/64
+  mtu: 1500
+
 topology:
   kinds:
     linux:
       cmd: bash
+
   nodes:
     router0:
       kind: linux
@@ -53,40 +60,48 @@ topology:
         - /usr/lib/frr/frrinit.sh start
         - >-
           vtysh -c 'conf t' -c 'frr defaults datacenter' -c 'router bgp 65011' -c '  bgp router-id 10.0.0.2' -c '  bgp bestpath as-path multipath-relax' -c '  no bgp ebgp-requires-policy' -c '  neighbor ROUTERS peer-group' -c '  neighbor ROUTERS remote-as external' -c '  neighbor SERVERS peer-group' -c '  neighbor SERVERS remote-as internal' -c '  neighbor net0 interface peer-group ROUTERS' -c '  neighbor 10.0.3.2 peer-group SERVERS' -c '  neighbor 10.0.4.2 peer-group SERVERS' -c '  address-family ipv4 unicast' -c '    redistribute connected' -c '  exit-address-family' -c '!'
-    srv-control-plane:
+    # srv-control-plane:
+    srv-master:
       kind: linux
       image: nicolaka/netshoot:latest
-      network-mode: container:kind-control-plane
+      # network-mode: container:kind-control-plane
+      network-mode: container:k3d-clab-server-0
       exec:
         # Cilium currently doesn't support BGP Unnumbered
         - ip addr add 10.0.1.2/24 dev net0
         # Cilium currently doesn't support importing routes
         - ip route replace default via 10.0.1.1
-    srv-worker:
+    # srv-worker:
+    srv-worker1:
       kind: linux
       image: nicolaka/netshoot:latest
-      network-mode: container:kind-worker
+      # network-mode: container:kind-worker
+      network-mode: container:k3d-clab-agent-0
       exec:
         - ip addr add 10.0.2.2/24 dev net0
         - ip route replace default via 10.0.2.1
     srv-worker2:
       kind: linux
       image: nicolaka/netshoot:latest
-      network-mode: container:kind-worker2
+      # network-mode: container:kind-worker2
+      network-mode: container:k3d-clab-agent-1
       exec:
         - ip addr add 10.0.3.2/24 dev net0
         - ip route replace default via 10.0.3.1
     srv-worker3:
       kind: linux
       image: nicolaka/netshoot:latest
-      network-mode: container:kind-worker3
+      # network-mode: container:kind-worker3
+      network-mode: container:k3d-clab-agent-2
       exec:
         - ip addr add 10.0.4.2/24 dev net0
         - ip route replace default via 10.0.4.1
   links:
     - endpoints: ["router0:net0", "tor0:net0"]
     - endpoints: ["router0:net1", "tor1:net0"]
-    - endpoints: ["tor0:net1", "srv-control-plane:net0"]
-    - endpoints: ["tor0:net2", "srv-worker:net0"]
+    # - endpoints: ["tor0:net1", "srv-control-plane:net0"]
+    - endpoints: ["tor0:net1", "srv-master:net0"]
+    # - endpoints: ["tor0:net2", "srv-worker:net0"]
+    - endpoints: ["tor0:net2", "srv-worker1:net0"]
     - endpoints: ["tor1:net1", "srv-worker2:net0"]
     - endpoints: ["tor1:net2", "srv-worker3:net0"]

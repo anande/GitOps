@@ -18,3 +18,4 @@ keycloak/manifests-based/keycloak.local.com+1.pem
 vscodium_settings*/*
 keycloak/helm/keycloak/certs
 argo/app-of-apps/apps/manifests/certs
+containerlabs/.topology*.bak

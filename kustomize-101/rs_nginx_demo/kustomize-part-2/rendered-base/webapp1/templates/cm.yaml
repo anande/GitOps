@@ -1,0 +1,16 @@
+---
+# Source: webapp1/templates/cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: index-html-config
+  namespace: default
+data:
+  index.html:     <head>
+      <title>Welcome to my web app</title>
+    </head>
+    <body bgcolor="Salmon">
+      <h1>Welcome to my web app</h1><br>
+      This "index.html" is maintained in its own ConfigMap<br>
+      Deployed using HELM
+    </body>
