@@ -1,3 +1,0 @@
-To access the service:  
-
-kubectl port-forward service/{{ .Values.appName }} 9292:80 --namespace {{ .Values.namespace }}

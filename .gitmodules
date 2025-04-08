@@ -1,3 +1,0 @@
-[submodule "argo/app-of-apps/apps/simple_nginx_app"]
-	path = argo/app-of-apps/apps/simple_nginx_app
-	url = https://github.com/anande/argocd-demo.git
