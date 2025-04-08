@@ -1,0 +1,19 @@
+# sources:
+# k8s: https://community.veeam.com/kubernetes-korner-90/go-completely-container-crazy-with-linuxserver-io-6517
+# compose: https://community.veeam.com/kubernetes-korner-90/go-completely-container-crazy-with-linuxserver-io-6517
+---
+services:
+  webtop:
+    image: lscr.io/linuxserver/webtop:fedora-kde
+    # image: lscr.io/linuxserver/webtop:latest
+    container_name: webtop
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /Users/anand.nande/Downloads/webtop:/config
+    ports:
+      - 3000:3000
+      - 3001:3001
+    restart: unless-stopped

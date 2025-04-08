@@ -1,0 +1,27 @@
+---
+
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: envoyproxy-config
+  namespace: envoy-gateway-system
+spec:
+  telemetry:
+    accessLog:
+      settings:
+        - format:
+            type: Text
+            text: |
+              [%START_TIME%] "%REQ(:METHOD)% %REQ(X-FORWARDED-FOR)%" %RESPONSE_CODE% %BYTES_RECEIVED% %BYTES_SENT% %DURATION%
+          sinks:
+            - type: File
+              file:
+                path: "/var/log/envoy/access.log"
+# If you want to output in the pods logs :
+          # sinks:
+          #   - type: File
+          #     file:
+          #       path: "/dev/stdout"
+
+# Logs will now appear in the pod's logs and can be accessed using:
+# kubectl logs -n envoy-gateway-system <envoy-pod-name>

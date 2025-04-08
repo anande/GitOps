@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: index-html-config
+  # namespace: default
+data:
+  index.html: |
+    <h4> Welcome to my web app </h4><br>
+    This "index.html" is maintained in its own ConfigMap<br>
+    Deployed using metalLB running in BGP-FRR mode!

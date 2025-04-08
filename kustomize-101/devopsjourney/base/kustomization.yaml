@@ -1,0 +1,16 @@
+resources:
+- deploy.yaml
+- svc.yaml
+
+commonLabels:
+  app: mywebapp
+
+namePrefix: 
+  kust-
+
+nameSuffix: 
+  -v1
+
+# configMapGenerator:
+#   - name: mykustom-map
+#     env: cm.properties

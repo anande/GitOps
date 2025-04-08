@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+        # - image: nginx:1.27.4
+        - image: nginx:stable
+          name: web-app

@@ -1,0 +1,18 @@
+---
+# Source: webapp1/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mywebapp
+  namespace: default  
+  labels:
+    app.kubernetes.io/name: mywebapp
+spec:
+  selector:
+    app.kubernetes.io/name: mywebapp
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  # type: LoadBalancer

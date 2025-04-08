@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+secretGenerator:
+  - name: keycloak-tls-cert
+    type: "kubernetes.io/tls"
+    files:
+      - tls.crt=./certs/keycloak.local.com+1.pem
+      - tls.key=./certs/keycloak.local.com+1-key.pem
+
+  - name: keycloak-admin-password
+    literals:
+      - adminPassword='password'
+
+  - name: keycloak-postgresql-password
+    literals:
+      - postgres-password='password!'
+      - password='password!'        
