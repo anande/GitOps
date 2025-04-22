@@ -1,12 +1,6 @@
 [submodule "argo/app-of-apps/apps/simple_nginx_app"]
 	path = argo/app-of-apps/apps/simple_nginx_app
 	url = https://github.com/anande/argocd-demo.git
-[submodule "argo/argo-gh-actions/argo/argo-gh-actions/argo-private-stuff"]
-	path = argo/argo-gh-actions/argo/argo-gh-actions/argo-private-stuff
-	url = https://github.com/anande/argo-private-stuff.git
-[submodule "argo/argo-gh-actions/argo-private-repo"]
-	path = argo/argo-gh-actions/argo-private-repo
-	url = https://github.com/anande/argo-private-stuff.git
 [submodule "argo/argo-gh-actions/argocd-private-repo"]
 	path = argo/argo-gh-actions/argocd-private-repo
 	url = https://github.com/anande/argo-private-stuff.git
