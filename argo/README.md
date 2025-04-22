@@ -234,7 +234,12 @@ Context 'localhost:8080' updated
 # argocd repo add http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/testing.git --type git --name git_act_runner
 Repository 'http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/testing.git' added
 ```
+
+
 #### Adding Private repo
+
+![multi-branch deploy](./argo-gh-actions/images/multi-branch.png)
+
 - Generate a Personal Access Token (PAT) in GitHub:
 
   - Go to GitHub Settings → Developer Settings → Personal Access Tokens
@@ -262,16 +267,35 @@ git   argocd_demo     https://github.com/anande/argocd-demo.git         false   
 
 ## Create an Argo App from CLI:
 
+This will by default select the HEAD/main branch
 ```
+k create gh-actions-ns
+
 argocd app create flask-app \
   --repo https://github.com/anande/argo-private-stuff.git \
-  --path hello_app \
+  --path infra_code \
   --dest-server https://kubernetes.default.svc \
   --dest-namespace gh-actions-ns \
   --project default \
   --sync-policy automated
 
 application 'flask-app' created
+```
+
+To select a specific non-main branch in its own other namespace:
+```
+k create ns flask-resume
+
+argocd app create flask-resume \
+  --repo https://github.com/anande/argo-private-stuff.git \
+  --path hello_app \
+  --revision resume \
+  --dest-server https://kubernetes.default.svc \
+  --dest-namespace flask-resume \
+  --project default \
+  --sync-policy automated
+
+application 'flask-resume' created
 ```
 
 #### Verify App has been created:
