@@ -225,12 +225,61 @@ Context 'localhost:8080' updated
 `If you are adding a gitea instance running inside another k3d cluster, but running on the same underlying baremetal node(laptop), you can add the repo using the link like: http://k3d-gitea-cluster-server-0:31002/gitea_admin/testing.git`
 
 ### From CLI:
+
+#### Adding Public repo
 ```
 ## repoURL should be created like:
 ## <service_name>.<service_namespace>.svc.cluster.local:<gitea_port>
 
 # argocd repo add http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/testing.git --type git --name git_act_runner
 Repository 'http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/testing.git' added
+```
+#### Adding Private repo
+- Generate a Personal Access Token (PAT) in GitHub:
+
+  - Go to GitHub Settings → Developer Settings → Personal Access Tokens
+
+  - Generate a new token with repo access (read-only is enough)
+
+  - Copy the token
+
+- Add repo via CLI using username/PAT-token
+```
+# argocd repo add https://github.com/<username>/<repo>.git \
+#  --username <your-github-username> \
+#  --password <your-github-token>
+
+$ argocd repo add https://github.com/anande/argo-private-stuff.git --type git --name argocd_private --username anande --password <pat_token>
+Repository 'https://github.com/anande/argo-private-stuff.git' added
+```
+- Verify repo is added 
+```
+argocd repo list
+TYPE  NAME            REPO                                              INSECURE  OCI    LFS    CREDS  STATUS      MESSAGE  PROJECT
+git   argocd_private  https://github.com/anande/argo-private-stuff.git  false     false  false  true   Successful           
+git   argocd_demo     https://github.com/anande/argocd-demo.git         false     false  false  false  Successful           default
+```
+
+## Create an Argo App from CLI:
+
+```
+argocd app create flask-app \
+  --repo https://github.com/anande/argo-private-stuff.git \
+  --path hello_app \
+  --dest-server https://kubernetes.default.svc \
+  --dest-namespace gh-actions-ns \
+  --project default \
+  --sync-policy automated
+
+application 'flask-app' created
+```
+
+#### Verify App has been created:
+```
+argocd app list
+NAME              CLUSTER                         NAMESPACE      PROJECT  STATUS  HEALTH   SYNCPOLICY  CONDITIONS  REPO                                              PATH              TARGET
+argocd/flask-app  https://kubernetes.default.svc  gh-actions-ns  default  Synced  Healthy  Auto        <none>      https://github.com/anande/argo-private-stuff.git  hello_app         
+argocd/nginx      https://kubernetes.default.svc  default        default  Synced  Healthy  Auto-Prune  <none>      https://github.com/anande/argocd-demo.git         nginx_yaml_files  HEAD
 ```
 
 ##### DISCLAIMER (Knowledge Correction - This is not an issue):

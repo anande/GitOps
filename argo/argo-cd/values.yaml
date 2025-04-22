@@ -2283,10 +2283,11 @@ server:
 
     # -- Additional TLS configuration
     # @default -- `[]` (See [values.yaml])
-    extraTls: []
-      # - hosts:
-      #   - argocd.example.com
-      #   secretName: your-certificate-name
+    # extraTls: []
+    extraTls:
+      - hosts:
+        - argocd.local.com
+        secretName: argocd-ingress-tls-cert
 
     # AWS specific options for Application Load Balancer
     # Applies only when `serv.ingress.controller` is set to `aws`

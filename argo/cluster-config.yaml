@@ -1,0 +1,16 @@
+apiVersion: k3d.io/v1alpha2
+kind: Simple
+options:
+  k3s:
+    extraServerArgs:
+      - --tls-san=192.168.1.15
+# servers: 1
+# agents: 2
+
+# options:
+#   k3s:
+#     extraArgs:
+#       - arg: "--tls-san=192.168.1.15"
+#         nodeFilters:
+#           - server:*
+#           - agent:*
