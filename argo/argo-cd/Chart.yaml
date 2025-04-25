@@ -6,7 +6,8 @@ annotations:
     fingerprint: 2B8F22F57260EFA67BE1C5824B11F800CD9D2252
     url: https://argoproj.github.io/argo-helm/pgp_keys.asc
 apiVersion: v2
-appVersion: v2.13.3
+# appVersion: v2.13.3
+appVersion: v2.14.11
 dependencies:
 - condition: redis-ha.enabled
   name: redis-ha

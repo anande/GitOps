@@ -240,6 +240,13 @@ Repository 'http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/testing.g
 
 ![multi-branch deploy](./argo-gh-actions/images/multi-branch.png)
 
+Also every branch's CI (github actions) will push the generated Docker image to their respective docker registries on [hub.docker.com](hub.docker.com). For this session I have created 2 registries:
+
+- `anande24/flask-resume` : to consume docker image from `resume` branch.
+- `anande24/argo-demo` : to consume docker image from `main` branch.
+
+![per branch registry](./argo-gh-actions/images/docker-reg.png)
+
 - Generate a Personal Access Token (PAT) in GitHub:
 
   - Go to GitHub Settings → Developer Settings → Personal Access Tokens
@@ -333,10 +340,20 @@ If you want to upgrade to the latest version, compare this to the upstream versi
 Once you find any newer version compared to current, you can :
 ```
 helm repo update
-
+```
 ## Make sure you are in the helm charts dir:
 
+Change the appVersion in Chart.yaml to the version you want to upgrade to.
+```
 helm upgrade argocd . -f values.yaml -n argocd
+```
+
+## Using Ingress with Traefik as default k3d IngressClass:
+
+For SSL Passthrough, which expects certificate to be present (using mkcert), Traefik does not work with ingress annotations like nginx-ingress In order to make it work, it requires special [IngressTCPRoute](../argo/argo-cd/TraefikIngressRouteTCP.yaml) to be defined.
+
+```
+kubectl apply -f TraefikIngressRouteTCP.yaml -n argocd
 ```
 
 ## Monitor ARGO-CD via Prometheus:
