@@ -16,14 +16,16 @@ spec:
       - asn: 65000
         neighbors:
           # ToR0 (ASN 65010)
-          - address: 172.20.20.8  # IP address of ToR0
+          # - address: 172.20.20.8  # IP address of ToR0
+          - address: 10.0.1.1  # IP address of ToR0
             asn: 65010           # ASN of ToR0
             toReceive:
               allowed:
                 mode: all        # Accept all prefixes from ToR0
 
           # ToR1 (ASN 65011)
-          - address: 172.20.20.6  # IP address of ToR1
+          # - address: 172.20.20.6  # IP address of ToR1
+          - address: 10.0.2.1  # IP address of ToR1
             asn: 65011           # ASN of ToR1
             toReceive:
               allowed:

@@ -9,7 +9,8 @@ k3d cluster create clab --config k3d-cluster-clab-1M_1W.yaml --k3s-arg '--disabl
 k3d cluster create --config k3d-cluster-clab-1M_3W.yaml
 ```
 
-[Containerlab BGP topo](https://gist.github.com/anande/2e2c15215b904a116ff03521d1fb3213)
+[Containerlab BGP topo 1_Master, 3_Worker](https://gist.github.com/anande/2e2c15215b904a116ff03521d1fb3213)
+[Containerlab BGP topo 1_Master, 1_Worker](https://gist.github.com/anande/637cf8a1747b64c632b8c9001bfdbaa5)
 
 ```
 router0# show bgp summary
@@ -78,4 +79,63 @@ router0(net0)   4      65000       158       159        0    0    0 00:07:33    
 10.0.4.2        4          0         0         0        0    0    0    never       Active        0 N/A
 
 Total number of neighbors 3
+```
+
+## In 1 Master:1 Worker Topology:
+
+![1M 1W](./images/1M_1W.png)
+
+### Router-0:
+```
+vtysh -c 'conf t' 
+-c 'frr defaults datacenter' 
+-c 'router bgp 65000' 
+-c '  bgp router-id 10.0.0.0' 
+-c '  no bgp ebgp-requires-policy' 
+-c '  neighbor ROUTERS peer-group' 
+-c '  neighbor ROUTERS remote-as external' 
+-c '  neighbor ROUTERS default-originate' 
+-c '  neighbor net0 interface peer-group ROUTERS' 
+-c '  neighbor net1 interface peer-group ROUTERS' 
+-c '  address-family ipv4 unicast' 
+-c '    redistribute connected' 
+-c '  exit-address-family' 
+-c '!'
+```
+### TOR-0:
+```
+vtysh -c 'conf t'
+-c 'frr defaults datacenter'
+-c 'router bgp 65010'
+-c '  bgp router-id 10.0.0.1'
+-c '  no bgp ebgp-requires-policy'
+-c '  neighbor ROUTERS peer-group'
+-c '  neighbor ROUTERS remote-as external'
+-c '  neighbor SERVERS peer-group' 
+-c '  neighbor SERVERS remote-as internal' 
+-c '  neighbor net0 interface peer-group ROUTERS' 
+-c '  neighbor 10.0.1.2 peer-group SERVERS'
+-c '  address-family ipv4 unicast' 
+-c '    redistribute connected' 
+-c '  exit-address-family' 
+-c '!'
+```
+### TOR-1:
+```
+vtysh -c 'conf t' 
+    -c 'frr defaults datacenter' 
+    -c 'router bgp 65011' 
+    -c '  bgp router-id 10.0.0.2' 
+    -c '  bgp bestpath as-path multipath-relax' 
+    -c '  no bgp ebgp-requires-policy' 
+    -c '  neighbor ROUTERS peer-group' 
+    -c '  neighbor ROUTERS remote-as external' 
+    -c '  neighbor SERVERS peer-group' 
+    -c '  neighbor SERVERS remote-as internal' 
+    -c '  neighbor net0 interface peer-group ROUTERS'
+    -c '  neighbor 10.0.2.2 peer-group SERVERS'
+    -c '  address-family ipv4 unicast' 
+    -c '    redistribute connected' 
+    -c '  exit-address-family' 
+    -c '!'
 ```

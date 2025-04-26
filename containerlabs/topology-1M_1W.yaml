@@ -29,7 +29,20 @@ topology:
         - /usr/lib/frr/frrinit.sh start
         # FRR configuration
         - >-
-          vtysh -c 'conf t' -c 'frr defaults datacenter' -c 'router bgp 65000' -c '  bgp router-id 10.0.0.0' -c '  no bgp ebgp-requires-policy' -c '  neighbor ROUTERS peer-group' -c '  neighbor ROUTERS remote-as external' -c '  neighbor ROUTERS default-originate' -c '  neighbor net0 interface peer-group ROUTERS' -c '  neighbor net1 interface peer-group ROUTERS' -c '  address-family ipv4 unicast' -c '    redistribute connected' -c '  exit-address-family' -c '!'
+          vtysh -c 'conf t' 
+          -c 'frr defaults datacenter' 
+          -c 'router bgp 65000' 
+          -c '  bgp router-id 10.0.0.0' 
+          -c '  no bgp ebgp-requires-policy' 
+          -c '  neighbor ROUTERS peer-group' 
+          -c '  neighbor ROUTERS remote-as external' 
+          -c '  neighbor ROUTERS default-originate' 
+          -c '  neighbor net0 interface peer-group ROUTERS' 
+          -c '  neighbor net1 interface peer-group ROUTERS' 
+          -c '  address-family ipv4 unicast' 
+          -c '    redistribute connected' 
+          -c '  exit-address-family' 
+          -c '!'
     tor0:
       kind: linux
       image: frrouting/frr:v8.2.2
@@ -39,12 +52,25 @@ topology:
         - ip link del eth0
         - ip addr add 10.0.0.1/32 dev lo
         - ip addr add 10.0.1.1/24 dev net1
-        # - ip addr add 10.0.2.1/24 dev net2
         - touch /etc/frr/vtysh.conf
         - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
         - /usr/lib/frr/frrinit.sh start
         - >-
-          vtysh -c 'conf t' -c 'frr defaults datacenter' -c 'router bgp 65010' -c '  bgp router-id 10.0.0.1' -c '  no bgp ebgp-requires-policy' -c '  neighbor ROUTERS peer-group' -c '  neighbor ROUTERS remote-as external' -c '  neighbor SERVERS peer-group' -c '  neighbor SERVERS remote-as internal' -c '  neighbor net0 interface peer-group ROUTERS' -c '  neighbor 10.0.1.2 peer-group SERVERS' -c '  neighbor 10.0.2.2 peer-group SERVERS' -c '  address-family ipv4 unicast' -c '    redistribute connected' -c '  exit-address-family' -c '!'
+          vtysh -c 'conf t'
+          -c 'frr defaults datacenter'
+          -c 'router bgp 65010'
+          -c '  bgp router-id 10.0.0.1'
+          -c '  no bgp ebgp-requires-policy'
+          -c '  neighbor ROUTERS peer-group'
+          -c '  neighbor ROUTERS remote-as external'
+          -c '  neighbor SERVERS peer-group' 
+          -c '  neighbor SERVERS remote-as internal' 
+          -c '  neighbor net0 interface peer-group ROUTERS' 
+          -c '  neighbor 10.0.1.2 peer-group SERVERS'
+          -c '  address-family ipv4 unicast' 
+          -c '    redistribute connected' 
+          -c '  exit-address-family' 
+          -c '!'
     tor1:
       kind: linux
       image: frrouting/frr:v8.2.2
@@ -53,30 +79,40 @@ topology:
       exec:
         - ip link del eth0
         - ip addr add 10.0.0.2/32 dev lo
-        - ip addr add 10.0.3.1/24 dev net1
-        # - ip addr add 10.0.4.1/24 dev net2
+        - ip addr add 10.0.2.1/24 dev net1
         - touch /etc/frr/vtysh.conf
         - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
         - /usr/lib/frr/frrinit.sh start
         - >-
-          vtysh -c 'conf t' -c 'frr defaults datacenter' -c 'router bgp 65011' -c '  bgp router-id 10.0.0.2' -c '  bgp bestpath as-path multipath-relax' -c '  no bgp ebgp-requires-policy' -c '  neighbor ROUTERS peer-group' -c '  neighbor ROUTERS remote-as external' -c '  neighbor SERVERS peer-group' -c '  neighbor SERVERS remote-as internal' -c '  neighbor net0 interface peer-group ROUTERS' -c '  neighbor 10.0.3.2 peer-group SERVERS' -c '  neighbor 10.0.4.2 peer-group SERVERS' -c '  address-family ipv4 unicast' -c '    redistribute connected' -c '  exit-address-family' -c '!'
-    # srv-control-plane:
+          vtysh -c 'conf t' 
+          -c 'frr defaults datacenter' 
+          -c 'router bgp 65011' 
+          -c '  bgp router-id 10.0.0.2' 
+          -c '  bgp bestpath as-path multipath-relax' 
+          -c '  no bgp ebgp-requires-policy' 
+          -c '  neighbor ROUTERS peer-group' 
+          -c '  neighbor ROUTERS remote-as external' 
+          -c '  neighbor SERVERS peer-group' 
+          -c '  neighbor SERVERS remote-as internal' 
+          -c '  neighbor net0 interface peer-group ROUTERS'
+          -c '  neighbor 10.0.2.2 peer-group SERVERS'
+          -c '  address-family ipv4 unicast' 
+          -c '    redistribute connected' 
+          -c '  exit-address-family' 
+          -c '!'
     srv-master:
       kind: linux
       image: nicolaka/netshoot:latest
-      # network-mode: container:kind-control-plane
-      network-mode: container:k3d-clab-server-0
+      # network-mode: container:k3d-clab-server-0
+      network-mode: container:k3d-clab2-server-0
       exec:
-        # Cilium currently doesn't support BGP Unnumbered
         - ip addr add 10.0.1.2/24 dev net0
-        # Cilium currently doesn't support importing routes
         - ip route replace default via 10.0.1.1
-    # srv-worker:
     srv-worker1:
       kind: linux
       image: nicolaka/netshoot:latest
-      # network-mode: container:kind-worker
-      network-mode: container:k3d-clab-agent-0
+      # network-mode: container:k3d-clab-agent-0
+      network-mode: container:k3d-clab2-agent-0
       exec:
         - ip addr add 10.0.2.2/24 dev net0
         - ip route replace default via 10.0.2.1

@@ -56,9 +56,11 @@ metadata:
   name: bgp-peer-tor0
   namespace: metallb-system
 spec:
-  peerAddress: 172.20.20.7  # Change this to your router's IP
-  peerASN: 65000  # ASN of your router or another FRR instance
-  myASN: 65010  # Private ASN for MetalLB
+  # peerAddress: 172.20.20.7  # Change this to your router's IP
+  peerAddress: 10.0.1.1  # Change this to your router's IP
+  # peerASN: 65000  # ASN of your router or another FRR instance
+  peerASN: 65010  # ASN of your router or another FRR instance
+  myASN: 65000  # Private ASN for MetalLB
   bfdProfile: testbfdprofile
 ---
 apiVersion: metallb.io/v1beta2
@@ -67,7 +69,9 @@ metadata:
   name: bgp-peer-tor1
   namespace: metallb-system
 spec:
-  peerAddress: 172.20.20.7  # Change this to your router's IP
-  peerASN: 65000  # ASN of your router or another FRR instance
-  myASN: 65011  # Private ASN for MetalLB
+  # peerAddress: 172.20.20.7  # Change this to your router's IP
+  peerAddress: 10.0.2.1  # Change this to your router's IP
+  # peerASN: 65000  # ASN of your router or another FRR instance
+  peerASN: 65011  # ASN of your router or another FRR instance
+  myASN: 65000  # Private ASN for MetalLB
   bfdProfile: testbfdprofile

@@ -145,6 +145,7 @@ k apply -f bgp-bfdprofile.yaml
 k apply -f bgp-peer.yaml
 k apply -f bgp-pool.yaml
 k apply -f bgp-adv.yaml
+k apply -f https://raw.githubusercontent.com/metallb/frr-k8s/main/config/all-in-one/frr-k8s.yaml
 k apply -f bgp-frr-config.yaml
 ```
 
