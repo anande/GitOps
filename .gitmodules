@@ -4,3 +4,6 @@
 [submodule "argo/argo-gh-actions/argocd-private-repo"]
 	path = argo/argo-gh-actions/argocd-private-repo
 	url = https://github.com/anande/argo-private-stuff.git
+[submodule "crossplane/provider-gcp"]
+	path = crossplane/provider-gcp
+	url = https://github.com/crossplane-contrib/provider-upjet-gcp.git
