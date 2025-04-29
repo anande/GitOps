@@ -12,5 +12,5 @@ spec:
     name: flask
   selector:
     app: mywebapp
-    tier: frontend
+    # tier: frontend
   type: LoadBalancer

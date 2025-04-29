@@ -1,4 +1,5 @@
 name: bgp-topo
+# prefix: clab2
 mgmt:
   network: clab
   ipv4-subnet: 172.20.20.0/24
@@ -103,16 +104,16 @@ topology:
     srv-master:
       kind: linux
       image: nicolaka/netshoot:latest
-      # network-mode: container:k3d-clab-server-0
-      network-mode: container:k3d-clab2-server-0
+      network-mode: container:k3d-clab-server-0
+      # network-mode: container:k3d-clab2-server-0
       exec:
         - ip addr add 10.0.1.2/24 dev net0
         - ip route replace default via 10.0.1.1
     srv-worker1:
       kind: linux
       image: nicolaka/netshoot:latest
-      # network-mode: container:k3d-clab-agent-0
-      network-mode: container:k3d-clab2-agent-0
+      network-mode: container:k3d-clab-agent-0
+      # network-mode: container:k3d-clab2-agent-0
       exec:
         - ip addr add 10.0.2.2/24 dev net0
         - ip route replace default via 10.0.2.1

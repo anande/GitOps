@@ -5,4 +5,5 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
-  - 172.20.0.110-172.20.0.119
+  # - 172.20.0.110-172.20.0.119  #needs to match the Allowed Pool from CIDR "docker network inspect clab --format='{{json .IPAM.Config}}'"
+  - 172.20.20.110-172.20.20.119

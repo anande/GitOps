@@ -1,8 +1,10 @@
 apiVersion: metallb.io/v1beta1
 kind: BGPAdvertisement
+# kind: L2Advertisement
 metadata:
   name: frr-test-adv
   namespace: metallb-system
 spec:
   ipAddressPools:
     - bgp-pool
+  aggregationLength: 32  

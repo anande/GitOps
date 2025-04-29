@@ -387,3 +387,45 @@ server:
 helm upgrade prometheus . -f values.yaml -n prometheus
 helm upgrade argocd . -n argocd -f values.yaml
 ```
+
+## Create and connect to a GKE cluster:
+
+```
+brew install --cask google-cloud-sdk
+
+gcloud init
+
+gcloud container clusters create dev --num-nodes=2 --zone=us-central1-a
+
+gcloud components install gke-gcloud-auth-plugin
+
+gcloud container clusters get-credentials dev --zone=us-central1-a
+
+kubectl config get-contexts
+
+argocd login localhost:9999      # Note: 9999 is the port-forwarded port on localhost
+
+argocd cluster add gke_dumptest-452406_us-central1-a_dev
+
+WARNING: This will create a service account `argocd-manager` on the cluster referenced by context `gke_dumptest-452406_us-central1-a_dev` with full cluster level privileges. Do you want to continue [y/N]? y
+INFO[0010] ServiceAccount "argocd-manager" created in namespace "kube-system" 
+INFO[0010] ClusterRole "argocd-manager-role" created    
+INFO[0011] ClusterRoleBinding "argocd-manager-role-binding" created 
+INFO[0012] Created bearer token secret for ServiceAccount "argocd-manager" 
+Cluster 'https://104.154.21.82' added
+
+
+argocd cluster list
+SERVER                          NAME                                   VERSION  STATUS      MESSAGE                                                  PROJECT
+https://104.154.21.82           gke_dumptest-452406_us-central1-a_dev           Unknown     Cluster has no applications and is not being monitored.  
+https://kubernetes.default.svc  in-cluster                             1.30     Successful
+
+
+argocd app create simple \
+  --repo https://github.com/anande/argocd-demo.git \
+  --path nginx_yaml_files \
+  --dest-server https://104.154.21.82 \
+  --dest-namespace simple \
+  --project default \
+  --sync-policy automated
+```
