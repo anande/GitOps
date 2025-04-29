@@ -9,7 +9,7 @@ Create Root App :
 ```
 argocd app create root-app \
 --project default \
---repo https://github.com/anande/GitOps \
+--repo https://github.com/anande/GitOps.git \
 --path "./app-of-apps/apps" \
 --dest-namespace argocd \
 --dest-server https://kubernetes.default.svc
