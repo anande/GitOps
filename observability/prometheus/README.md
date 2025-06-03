@@ -319,7 +319,7 @@ Also, it will help you prepare for the [Prometheus certification](https://devops
 
 As a next step, you can try setting up [prometheus on Kubernetes](https://devopscube.com/setup-prometheus-monitoring-on-kubernetes).
 
-## Locally on Laptop using docker
+# Install Locally on Laptop using docker
 ```
 docker run -it -p 9090:9090 prom/prometheus
 
