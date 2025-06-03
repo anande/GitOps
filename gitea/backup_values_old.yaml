@@ -457,7 +457,7 @@ gitea:
     # existingSecret: gitea-admin-secret
     existingSecret:
     username: gitea_admin
-    password: RedHat1!
+    password: password
     email: "gitea@local.domain"
     passwordMode: keepUpdated
 

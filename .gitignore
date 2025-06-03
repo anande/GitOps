@@ -23,3 +23,5 @@ containerlabs/clab-bgp-topo/.tls/*
 argo/app-of-apps/apps/manifests/certs
 argo/argo-gh-actions/working_backup
 argo/argo-cd/certs
+gitea/certs
+public-clouds/aws/rootkey.csv

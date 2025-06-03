@@ -1,0 +1,54 @@
+image:
+  repository: grafana/fluent-bit-plugin-loki
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 2020
+
+hostPathMounts:
+  - name: varlog
+    hostPath: /var/log
+    mountPath: /var/log
+    readOnly: true
+  - name: varlibdockercontainers
+    hostPath: /var/lib/docker/containers
+    mountPath: /var/lib/docker/containers
+    readOnly: true
+
+env: []
+
+config:
+  inputs: |
+    [INPUT]
+        Name              tail
+        Tag               kube.*
+        Path              /var/log/containers/*.log
+        Parser            docker
+        DB                /fluent-bit/state/flb_container.db
+        Mem_Buf_Limit     5MB
+        Skip_Long_Lines   On
+        Refresh_Interval  10
+  filters: |
+    [FILTER]
+        Name                kubernetes
+        Match               kube.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Merge_Log           On
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude Off
+  outputs: |
+    [OUTPUT]
+        Name              loki
+        Match             kube.*
+        Host              loki.loki-stack.svc.cluster.local
+        Port              3100
+        Labels            job=fluent-bit,node=$NODE_NAME
+        Auto_Kubernetes_Labels true
+        LineFormat        json
+        LogLevel          info
+        BatchWait         1s
+        BatchSize         1001024
+        RemoveKeys        kubernetes,stream
+        LabelKeys         container_name,namespace_name,pod_name

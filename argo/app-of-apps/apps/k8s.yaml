@@ -9,11 +9,13 @@ spec:
   destination:
     namespace: keycloak
     name: in-cluster
+    # name: gke_dumptest-452406_us-central1-a_dev
   project: default
 
   source:
     path: apps/manifests
-    repoURL: http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/keycloak.git
+    # repoURL: http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/keycloak.git
+    repoURL: https://github.com/anande/GitOps.git
     targetRevision: HEAD
 
   syncPolicy:

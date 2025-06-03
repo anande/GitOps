@@ -8,8 +8,8 @@ metadata:
 spec:
   destination:
     namespace: nginx
-    # name: in-cluster
-    name: gke_dumptest-452406_us-central1-a_dev
+    name: in-cluster
+    # name: gke_dumptest-452406_us-central1-a_dev
   project: default
 
   source:

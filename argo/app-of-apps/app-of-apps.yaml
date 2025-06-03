@@ -8,7 +8,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/keycloak.git
+    # repoURL: http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/keycloak.git
+    repoURL: https://github.com/anande/GitOps.git
     path: apps
     targetRevision: HEAD
 

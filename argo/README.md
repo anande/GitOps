@@ -113,10 +113,10 @@ $ kubens argocd
 Context "k3d-ingress-test" modified.
 Active namespace is "argocd".
 
-$ k create secret tls argocd-server-tls --key argocd.local.com+1-key.pem --cert argocd.local.com+1.pem
+$ k create secret tls argocd-server-tls --key argocd.local.com+1-key.pem --cert argocd.local.com+1.pem -n argocd
 secret/argocd-server-tls created
 
-$ helm install argocd . -f values.yaml
+$ helm install argocd . -f values.yaml -n argocd
 NAME: argocd
 LAST DEPLOYED: Tue Jan 28 22:15:31 2025
 NAMESPACE: argocd
@@ -222,7 +222,15 @@ Context 'localhost:8080' updated
 ```
 
 #### NOTE:
-`If you are adding a gitea instance running inside another k3d cluster, but running on the same underlying baremetal node(laptop), you can add the repo using the link like: http://k3d-gitea-cluster-server-0:31002/gitea_admin/testing.git`
+If you are adding a gitea instance running inside another k3d cluster, but running on the same underlying baremetal node(laptop),  
+you can add the repo using the link like: [http://k3d-gitea-cluster-server-0:31002/gitea_admin/testing.git](http://k3d-gitea-cluster-server-0:31002/gitea_admin/testing.git) where:
+
+- `http` : Even if gitea uses self-signed certs, argocd connects over http
+- `k3d-gitea-cluster-server-0` : name of the docker container (can be seen using "docker ps")
+- `31002` : Default port
+- `gitea-admin` : name of the gitea admin user
+- `testing.git` : name of the gitea repository
+
 
 ### From CLI:
 
@@ -428,4 +436,28 @@ argocd app create simple \
   --dest-namespace simple \
   --project default \
   --sync-policy automated
+```
+
+## Reset forgotten argocd password
+
+Generate a bcrypt hash of your desired new password:
+```
+$ argocd account bcrypt --password NewPassword2025!
+$2a$10$/ov9rd4p.wQ/vmI8N.QZ6epcY/SWB8PQ0Aj8/n4NdCGt2DUi9rauO%
+```
+
+Patch the current secret:
+```
+$ kubectl -n argocd patch secret argocd-secret \
+  -p '{"stringData": {
+    "admin.password": "$2a$10$/ov9rd4p.wQ/vmI8N.QZ6epcY/SWB8PQ0Aj8/n4NdCGt2DUi9rauO%", "admin.passwordMtime": "'$(date +%FT%T%Z)'"
+  }}'
+secret/argocd-secret patched
+```
+
+Restart the deployment of the argocd-server:
+```
+$ kubectl -n argocd rollout restart deployment argocd-server
+
+deployment.apps/argocd-server restarted
 ```

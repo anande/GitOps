@@ -1,0 +1,90 @@
+loki:
+  commonConfig:
+    replication_factor: 1
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+  pattern_ingester:
+      enabled: true
+  limits_config:
+    allow_structured_metadata: true
+    volume_enabled: true
+  ruler:
+    enable_api: true
+
+  storage:
+    type: filesystem
+    filesystem:
+      directory: /var/loki
+
+minio:
+  enabled: false
+
+deploymentMode: SingleBinary
+
+singleBinary:
+  replicas: 1
+  persistence:
+    storageClass: local-path
+    size: 3Gi
+
+# ResourceCrunchIssue: 
+# 1) https://community.grafana.com/t/how-to-set-resource-limit-for-exporter-container-in-the-results-cache-pod/141271/2
+# 2) https://github.com/grafana/loki/issues/13755
+memcachedExporter:
+  enabled: true
+  image:
+    repository: prom/memcached-exporter
+    tag: v0.15.2
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+chunksCache:
+  enabled: true
+  allocatedMemory: 2048
+  resources:
+      limits:
+        cpu: "2" # CPU limit (e.g., 2 cores)
+        memory: 2Gi # Memory limit (e.g., 3 GiB)
+      requests:
+        cpu: 500m # CPU request (e.g., 0.5 cores)
+        memory: 2Gi # Memory request (e.g., 2 GiB)
+
+# Zero out replica counts of other deployment modes
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+
+ingester:
+  replicas: 0
+querier:
+  replicas: 0
+queryFrontend:
+  replicas: 0
+queryScheduler:
+  replicas: 0
+distributor:
+  replicas: 0
+compactor:
+  replicas: 0
+indexGateway:
+  replicas: 0
+bloomCompactor:
+  replicas: 0
+bloomGateway:
+  replicas: 0
