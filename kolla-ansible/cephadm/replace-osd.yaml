@@ -1,0 +1,106 @@
+---
+- name: Replace Ceph OSD using cephadm
+  hosts: admin
+  become: true
+  vars:
+    osd_id: "{{ osd_id | default('') }}"
+    cluster_name: "ceph"
+  tasks:
+    - name: Validate that osd_id is provided and is a number
+      ansible.builtin.fail:
+        msg: "The osd_id must be provided as an extra variable and must be a number (e.g., --extra-vars 'osd_id=0')"
+      # when: osd_id | length == 0 or osd_id is not number
+      when: osd_id | length == 0 or osd_id | int | string != osd_id
+      tags: check
+
+    - name: Check if cephadm is installed
+      ansible.builtin.command: which cephadm
+      register: cephadm_check
+      changed_when: false
+      failed_when: cephadm_check.rc != 0
+      ignore_errors: false
+
+    - name: Check if OSD exists
+      ansible.builtin.command: cephadm shell -- ceph orch ls osd --export
+      register: osd_list
+      changed_when: false
+      failed_when: osd_list.rc != 0
+
+    - name: Fail if OSD does not exist
+      ansible.builtin.fail:
+        msg: "OSD {{ osd_id }} does not exist in the cluster"
+      when: "'osd.' + osd_id not in osd_list.stdout"
+
+    - name: Get the device path for the OSD
+      ansible.builtin.command: cephadm shell -- ceph-volume lvm list --format json
+      register: lvm_list
+      changed_when: false
+      failed_when: lvm_list.rc != 0
+
+    - name: Parse device path for OSD
+      ansible.builtin.set_fact:
+        osd_device: "{{ (lvm_list.stdout | from_json)[osd_id].devices[0] | default('') }}"
+      when: lvm_list.stdout | from_json is defined
+      register: lvm_found
+
+    - name: Print device path
+      ansible.builtin.debug:
+        msg: "{{ lvm_found }}"
+
+    - name: Fail if device path not found
+      ansible.builtin.fail:
+        msg: "Could not determine device path for OSD {{ osd_id }}"
+      when: osd_device | length == 0
+
+    - name: Set OSD out
+      ansible.builtin.command: cephadm shell -- ceph osd out {{ osd_id }}
+      changed_when: true
+      register: set_out
+      failed_when: set_out.rc != 0
+
+    - name: Wait for OSD to be marked out
+      ansible.builtin.command: cephadm shell -- ceph osd tree
+      register: osd_tree
+      until: "'osd.' + osd_id + '.*out' in osd_tree.stdout"
+      retries: 10
+      delay: 5
+      changed_when: false
+
+    - name: Remove OSD from cluster
+      ansible.builtin.command: cephadm shell -- ceph orch osd rm {{ osd_id }}
+      changed_when: true
+      register: osd_remove
+      failed_when: osd_remove.rc != 0
+
+    - name: Wait for OSD to be removed
+      ansible.builtin.command: cephadm shell -- ceph orch osd rm status
+      register: rm_status
+      until: "'osd.' + osd_id not in rm_status.stdout"
+      retries: 30
+      delay: 10
+      changed_when: false
+
+    - name: Zap the disk
+      ansible.builtin.command: cephadm shell -- ceph-volume lvm zap {{ osd_device }}
+      changed_when: true
+      register: zap_disk
+      failed_when: zap_disk.rc != 0
+
+    - name: Re-create OSD with the same ID
+      ansible.builtin.command: cephadm shell -- ceph-volume lvm create --osd-id {{ osd_id }} --data {{ osd_device }}
+      changed_when: true
+      register: create_osd
+      failed_when: create_osd.rc != 0
+
+    - name: Verify OSD is in cluster
+      ansible.builtin.command: cephadm shell -- ceph osd tree
+      register: osd_tree_final
+      until: "'osd.' + osd_id + '.*up' in osd_tree_final.stdout"
+      retries: 10
+      delay: 5
+      changed_when: false
+
+    - name: Unset noout flag if set
+      ansible.builtin.command: cephadm shell -- ceph osd unset noout
+      changed_when: true
+      ignore_errors: true

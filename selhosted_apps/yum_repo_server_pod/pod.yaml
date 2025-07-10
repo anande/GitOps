@@ -1,0 +1,32 @@
+# Pod Configuration
+apiVersion: v1
+kind: Pod
+metadata:
+  name: yumrepo-pod
+  labels:
+    app: yumrepo
+spec:
+  containers:
+    - name: yumrepo-server
+      image: <your-registry>/yumrepo-server:latest  # Replace with your registry
+      ports:
+        - containerPort: 80
+          name: http
+      volumeMounts:
+        - name: yumrepo-storage
+          mountPath: /var/www/yumrepo
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "250m"
+        limits:
+          memory: "512Mi"
+          cpu: "500m"
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+  volumes:
+    - name: yumrepo-storage
+      persistentVolumeClaim:
+        claimName: yumrepo-pvc

@@ -11,6 +11,7 @@
 References:  
 1. [Helm Ceph Cluster](https://rook.io/docs/rook/v1.8/helm.html)
 2. [Nare P's single node ceph rook cluster](https://www.youtube.com/watch?v=HpKOO3XvWvk)
+3. [Ceph PG Calculator](https://access.redhat.com/labs/cephpgc/manual)
 
 ## Using Ceph rook Manifests
 

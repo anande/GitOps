@@ -1,0 +1,15 @@
+# Service to Expose the Pod
+apiVersion: v1
+kind: Service
+metadata:
+  name: yumrepo-service
+  labels:
+    app: yumrepo
+spec:
+  selector:
+    app: yumrepo
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: http
+  type: ClusterIP

@@ -1,0 +1,16 @@
+# Persistent Volume
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: yumrepo-pv
+  labels:
+    app: yumrepo
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: /mnt/yumrepo  # Adjust based on your storage setup (e.g., NFS, cloud storage)

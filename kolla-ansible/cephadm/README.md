@@ -354,6 +354,9 @@ ceph_nova_pool_name: "vms"
 ```
 
 ### Set ceph credentials:
+
+For practicing the least-privilege principal part of security best-practices
+
 ```
 root@kolla-1:~# ceph auth caps client.cinder-backup mon 'allow r' osd 'allow class-read object_prefix rbd_data, allow rwx pool=cinder-backup'
 [client.cinder-backup]
@@ -361,4 +364,185 @@ root@kolla-1:~# ceph auth caps client.cinder-backup mon 'allow r' osd 'allow cla
         caps mon = "allow r"
         caps osd = "allow class-read object_prefix rbd_data, allow rwx pool=cinder-backup"
 updated caps for client.cinder-backup
+```
+NOTE: The `profile` role allows more permissions than the above.
+```
+        caps: [mon] profile rbd
+        caps: [osd] profile rbd pool=vms
+```
+
+# Procedure to Replace failed OSD
+
+List all OSDs to identify the failed or problematic OSD.
+Look for OSDs marked as down or out. Note the OSD ID (e.g., osd.8) and the host it resides on.
+
+[In this case - we are going to consider that /dev/vdf or osd.8 is gone bad and going to replace it by removing it first and addinf it back]
+
+```
+root@kolla-1:~# ceph osd tree
+ID  CLASS  WEIGHT   TYPE NAME         STATUS  REWEIGHT  PRI-AFF
+-1         0.08817  root default                               
+-7         0.02939      host kolla-1                           
+ 6    hdd  0.00980          osd.6         up   1.00000  1.00000
+ 7    hdd  0.00980          osd.7         up   1.00000  1.00000
+ 8    hdd  0.00980          osd.8         up   1.00000  1.00000
+-3         0.02939      host kolla-2                           
+ 0    hdd  0.00980          osd.0         up   1.00000  1.00000
+ 1    hdd  0.00980          osd.1         up   1.00000  1.00000
+ 2    hdd  0.00980          osd.2         up   1.00000  1.00000
+-5         0.02939      host kolla-3                           
+ 3    hdd  0.00980          osd.3         up   1.00000  1.00000
+ 4    hdd  0.00980          osd.4         up   1.00000  1.00000
+ 5    hdd  0.00980          osd.5         up   1.00000  1.00000
+```
+
+Mark the OSD as destroyed to remove it from the crush map and allow reuse of the ID:
+```
+root@kolla-1:~# ceph osd crush remove osd.8
+removed item id 8 name 'osd.8' from crush map
+root@kolla-1:~# ceph auth del osd.8
+root@kolla-1:~# ceph osd rm osd.8
+Error EBUSY: osd.8 is still up; must be down before removal. 
+root@kolla-1:~# docker stop ceph-7171f0d9-3e14-11f0-8055-fa163e2353fb-osd-8
+ceph-7171f0d9-3e14-11f0-8055-fa163e2353fb-osd-8
+root@kolla-1:~# ceph osd rm osd.8
+removed osd.8
+root@kolla-1:~# ceph osd destroy osd.8
+osd.8 does not exist
+root@kolla-1:~# ceph osd destroy 8
+osd.8 does not exist
+root@kolla-1:~# !?tree?
+ceph osd tree
+ID  CLASS  WEIGHT   TYPE NAME         STATUS  REWEIGHT  PRI-AFF
+-1         0.07837  root default                               
+-7         0.01959      host kolla-1                           
+ 6    hdd  0.00980          osd.6         up   1.00000  1.00000
+ 7    hdd  0.00980          osd.7         up   1.00000  1.00000
+-3         0.02939      host kolla-2                           
+ 0    hdd  0.00980          osd.0         up   1.00000  1.00000
+ 1    hdd  0.00980          osd.1         up   1.00000  1.00000
+ 2    hdd  0.00980          osd.2         up   1.00000  1.00000
+-5         0.02939      host kolla-3                           
+ 3    hdd  0.00980          osd.3         up   1.00000  1.00000
+ 4    hdd  0.00980          osd.4         up   1.00000  1.00000
+ 5    hdd  0.00980          osd.5         up   1.00000  1.00000
+```
+
+- Shut down the host if required (ensure no other critical services are affected).
+- Replace the failed disk with a new one. Ensure the new disk is of equal or greater capacity and compatible with your Ceph setup.
+- Power on the host and verify the new disk is detected:
+```
+lsblk
+```
+
+Identify which /dev/vdX device is linked to which osd.X id:
+```
+root@kolla-1:~# ceph device ls-by-host kolla-1
+DEVICE                DEV  DAEMONS      EXPECTED FAILURE
+34ec8488-2d2c-40ed-a  vdd  osd.6                        
+34f5dda1-d40b-4668-8  vda  mon.kolla-1                  
+cb1080ae-c0ed-4827-8  vde  osd.7   
+```
+
+We can see that `vdf` is missing which means we need to clean vdf.
+
+```
+root@kolla-1:~# ceph orch daemon rm osd.8
+Error EINVAL: must pass --force to REMOVE daemon with potentially PRECIOUS DATA for osd.8
+root@kolla-1:~# ceph orch daemon rm osd.8 --force
+Removed osd.8 from host 'kolla-1'
+```
+
+Get the LV name:
+```
+root@kolla-1:~# lvs
+  LV                                             VG                                        Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  osd-block-a0e9799e-623d-4f3a-a8be-8f3190f2a984 ceph-0b50f7e6-1a7a-4588-abbe-bd2d85fa289c -wi-ao---- <10.00g                                                    
+  osd-block-47dfd3d1-4da5-4bf5-b3f7-40b2dc013683 ceph-a5824ad2-561d-4343-a4ec-a966931d0e15 -wi-ao---- <10.00g                                                    
+  osd-block-b186186f-6030-4fdb-9a3c-48462904c778 ceph-b7a7410c-2c0c-4d60-aaa7-647f020e72f9 -wi-a----- <10.00g                                                    
+
+root@kolla-1:~# lvremove /dev/ceph-b7a7410c-2c0c-4d60-aaa7-647f020e72f9/osd-block-b186186f-6030-4fdb-9a3c-48462904c778
+Do you really want to remove and DISCARD active logical volume ceph-b7a7410c-2c0c-4d60-aaa7-647f020e72f9/osd-block-b186186f-6030-4fdb-9a3c-48462904c778? [y/n]: y
+  Logical volume "osd-block-b186186f-6030-4fdb-9a3c-48462904c778" successfully removed.
+```
+
+Confirm lv has been removed:
+```
+root@kolla-1:~# lvs
+  LV                                             VG                                        Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  osd-block-a0e9799e-623d-4f3a-a8be-8f3190f2a984 ceph-0b50f7e6-1a7a-4588-abbe-bd2d85fa289c -wi-ao---- <10.00g                                                    
+  osd-block-47dfd3d1-4da5-4bf5-b3f7-40b2dc013683 ceph-a5824ad2-561d-4343-a4ec-a966931d0e15 -wi-ao---- <10.00g                                                    
+```
+Remove associated vg:
+```
+root@kolla-1:~# vgs
+  VG                                        #PV #LV #SN Attr   VSize   VFree  
+  ceph-0b50f7e6-1a7a-4588-abbe-bd2d85fa289c   1   1   0 wz--n- <10.00g      0 
+  ceph-a5824ad2-561d-4343-a4ec-a966931d0e15   1   1   0 wz--n- <10.00g      0 
+  ceph-b7a7410c-2c0c-4d60-aaa7-647f020e72f9   1   0   0 wz--n- <10.00g <10.00g
+root@kolla-1:~# vgremove ceph-b7a7410c-2c0c-4d60-aaa7-647f020e72f9
+  Volume group "ceph-b7a7410c-2c0c-4d60-aaa7-647f020e72f9" successfully removed
+root@kolla-1:~# vgs
+  VG                                        #PV #LV #SN Attr   VSize   VFree
+  ceph-0b50f7e6-1a7a-4588-abbe-bd2d85fa289c   1   1   0 wz--n- <10.00g    0 
+  ceph-a5824ad2-561d-4343-a4ec-a966931d0e15   1   1   0 wz--n- <10.00g    0 
+```
+
+Remove associated PV:
+```
+root@kolla-1:~# pvremove /dev/vdf
+  Labels on physical volume "/dev/vdf" successfully wiped.
+root@kolla-1:~# pvs
+  PV         VG                                        Fmt  Attr PSize   PFree
+  /dev/vdd   ceph-0b50f7e6-1a7a-4588-abbe-bd2d85fa289c lvm2 a--  <10.00g    0 
+  /dev/vde   ceph-a5824ad2-561d-4343-a4ec-a966931d0e15 lvm2 a--  <10.00g    0 
+```
+
+Wipe disk clean with all signatures:
+```
+root@kolla-1:~# wipefs -a /dev/vdf
+```
+
+Recreate OSD on this disk:
+```
+root@kolla-1:~# ceph orch daemon add osd kolla-1:/dev/vdf
+Created osd(s) 8 on host 'kolla-1'
+root@kolla-1:~# !?ls-by?
+ceph device ls-by-host kolla-1
+DEVICE                DEV  DAEMONS      EXPECTED FAILURE
+34ec8488-2d2c-40ed-a  vdd  osd.6                        
+34f5dda1-d40b-4668-8  vda  mon.kolla-1                  
+cb1080ae-c0ed-4827-8  vde  osd.7                        
+fe8cae78-f61c-4261-9  vdf  osd.8                        
+root@kolla-1:~# !?orch ps? | grep "osd.8"
+ceph orch ps  | grep "osd.8"
+osd.8                  kolla-1                    running           3m ago   3m        -    4096M  <unknown>  <unknown>     <unknown>
+```
+
+Manually Mark OSD as Up (If the OSD is running but marked as down or unknown, try manually marking it as up):
+```
+ceph osd in 8
+ceph osd crush reweight osd.8 1.0
+```
+
+Verify osd is up:
+```
+root@kolla-1:~# ceph orch ps  |grep osd.8
+osd.8                  kolla-1                    running (2m)     80s ago  10m    37.4M    4096M  19.2.2   4892a7ef541b  27cbbfa53036
+
+root@kolla-1:~# ceph osd tree
+ID  CLASS  WEIGHT   TYPE NAME         STATUS  REWEIGHT  PRI-AFF
+-1         1.07837  root default                               
+-7         1.01959      host kolla-1                           
+ 6    hdd  0.00980          osd.6         up   1.00000  1.00000
+ 7    hdd  0.00980          osd.7         up   1.00000  1.00000
+ 8    hdd  1.00000          osd.8         up   1.00000  1.00000
+-3         0.02939      host kolla-2                           
+ 0    hdd  0.00980          osd.0         up   1.00000  1.00000
+ 1    hdd  0.00980          osd.1         up   1.00000  1.00000
+ 2    hdd  0.00980          osd.2         up   1.00000  1.00000
+-5         0.02939      host kolla-3                           
+ 3    hdd  0.00980          osd.3         up   1.00000  1.00000
+ 4    hdd  0.00980          osd.4         up   1.00000  1.00000
+ 5    hdd  0.00980          osd.5         up   1.00000  1.00000
 ```
